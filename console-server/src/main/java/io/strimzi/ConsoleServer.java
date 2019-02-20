@@ -12,7 +12,10 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class ConsoleServer extends AbstractVerticle {
 
@@ -36,18 +39,11 @@ public class ConsoleServer extends AbstractVerticle {
         HttpServer server = this.vertx.createHttpServer();
 
         Router router = Router.router(this.vertx);
+        router.route().handler(BodyHandler.create());
 
-        router.get("/topics").handler(routingContext -> {
-            routingContext.response().end("topics");
-        });
-        router.get("/topics/:topicname").handler(routingContext -> {
-            String topicName = routingContext.request().getParam("topicname");
-            routingContext.response().end(topicName);
-        });
-        router.post("/topics/:topicname").handler(routingContext -> {
-            String topicName = routingContext.request().getParam("topicname");
-            routingContext.response().end(topicName);
-        });
+        router.get("/topics").handler(this::getTopics);
+        router.get("/topics/:topicname").handler(this::getTopic);
+        router.post("/topics").handler(this::createTopic);
 
         server.requestHandler(router).listen(8080, ar -> {
             if (ar.succeeded()) {
@@ -58,6 +54,23 @@ public class ConsoleServer extends AbstractVerticle {
                 startFuture.fail(ar.cause());
             }
         });
+    }
+
+    private void createTopic(RoutingContext routingContext) {
+        log.info("createTopic");
+        Topic topic = Json.decodeValue(routingContext.getBodyAsString(), Topic.class);
+        routingContext.response().end(topic.getName());
+    }
+
+    private void getTopics(RoutingContext routingContext) {
+        log.info("getTopics");
+        routingContext.response().end("list of topics");
+    }
+
+    private void getTopic(RoutingContext routingContext) {
+        log.info("getTopic");
+        String topicName = routingContext.request().getParam("topicname");
+        routingContext.response().end(topicName);
     }
 
     @Override
