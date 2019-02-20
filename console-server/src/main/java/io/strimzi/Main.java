@@ -7,6 +7,9 @@ package io.strimzi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 
 public class Main {
@@ -16,8 +19,22 @@ public class Main {
     public static void main(String[] args) {
         log.info("ConsoleServer {} is starting", Main.class.getPackage().getImplementationVersion());
 
-        ConsoleServer consoleServer = new ConsoleServer();
+        ConsoleServerConfig config = ConsoleServerConfig.fromMap(System.getenv());
         Vertx vertx = Vertx.vertx();
+        KubernetesClient kubeClient = new DefaultKubernetesClient();
+
+        run(vertx, config, kubeClient).setHandler(res -> {
+            if (res.failed()) {
+                log.error("Unable to start Console Server", res.cause());
+                System.exit(1);
+            }
+        });
+    }
+
+    static Future<String> run(Vertx vertx, ConsoleServerConfig config, KubernetesClient kubeClient) {
+
+        Future<String> fut = Future.future();
+        ConsoleServer consoleServer = new ConsoleServer(config, kubeClient);
 
         vertx.deployVerticle(consoleServer, 
             res -> {
@@ -27,7 +44,9 @@ public class Main {
                     log.error("ConsoleServer verticle failed to start", res.cause());
                     System.exit(1);
                 }
+                fut.completer().handle(res);
             }
         );
+        return fut;
     }
 }

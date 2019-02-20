@@ -8,6 +8,7 @@ package io.strimzi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -16,6 +17,17 @@ import io.vertx.ext.web.Router;
 public class ConsoleServer extends AbstractVerticle {
 
     private static final Logger log = LogManager.getLogger(ConsoleServer.class);
+
+    private final ConsoleServerConfig config;
+    private final KubernetesClient kubeClient;
+
+    private TopicConsole topicConsole;
+
+    public ConsoleServer(ConsoleServerConfig config, KubernetesClient kubeClient) {
+        this.config = config;
+        this.kubeClient = kubeClient;
+        this.topicConsole = new TopicConsole(kubeClient, config.getKafkaBootstrapServers());
+    }
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
