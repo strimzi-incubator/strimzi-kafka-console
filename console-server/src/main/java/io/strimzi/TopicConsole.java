@@ -38,6 +38,7 @@ public class TopicConsole {
                                         .withTopicName(topic.getName())
                                         .withPartitions(topic.getPartitions())
                                         .withReplicas(topic.getReplicas())
+                                        .withConfig(topic.getConfig())
                                     .endSpec()
                                     .build();
 

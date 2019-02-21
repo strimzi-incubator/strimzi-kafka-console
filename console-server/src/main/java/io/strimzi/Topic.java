@@ -3,22 +3,27 @@
  * License: Apache License 2.0 (see the file LICENSE or http://apache.org/licenses/LICENSE-2.0.html).
  */
 
- package io.strimzi;
+package io.strimzi;
 
- public class Topic {
+import java.util.HashMap;
+import java.util.Map;
+
+import io.vertx.core.json.JsonObject;
+
+public class Topic {
 
     private String name;
     private int partitions;
     private int replicas;
+    private Map<String, Object> config = new HashMap<>();
 
-    public Topic() {
-        
-    }
-
-    public Topic(String name, int partitions, int replicas) {
+    public Topic(String name, int partitions, int replicas, Map<String, Object> config) {
         this.name = name;
         this.partitions = partitions;
         this.replicas = replicas;
+        if (config != null) {
+            this.config.putAll(config);
+        }
     }
 
     /**
@@ -63,4 +68,30 @@
         this.replicas = replicas;
     }
 
+    /**
+     * @return the config
+     */
+    public Map<String, Object> getConfig() {
+        return this.config;
+    }
+
+    /**
+     * @param config the config to set
+     */
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
+    }
+
+    public static Topic fromJson(JsonObject json) {
+        String name = json.getString("name");
+        int partitions = Integer.parseInt(json.getValue("partitions").toString());
+        int replicas = Integer.parseInt(json.getValue("replicas").toString());
+
+        Map<String, Object> config = null;
+        JsonObject configJson = json.getJsonObject("config");
+        if (configJson != null) {
+            config = configJson.getMap();
+        }
+        return new Topic(name, partitions, replicas, config);
+    }
  }

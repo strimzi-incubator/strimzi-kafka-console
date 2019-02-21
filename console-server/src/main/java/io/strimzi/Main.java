@@ -40,7 +40,7 @@ public class Main {
         vertx.deployVerticle(consoleServer, 
             res -> {
                 if (res.succeeded()) {
-                    log.info("ConsoleServer verticle started");
+                    log.info("ConsoleServer verticle started with config: {}", config);
                 } else {
                     log.error("ConsoleServer verticle failed to start", res.cause());
                     System.exit(1);

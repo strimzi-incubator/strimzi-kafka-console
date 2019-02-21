@@ -12,7 +12,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.Json;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -57,24 +57,33 @@ public class ConsoleServer extends AbstractVerticle {
     }
 
     private void createTopic(RoutingContext routingContext) {
-        log.info("createTopic");
-        Topic topic = Json.decodeValue(routingContext.getBodyAsString(), Topic.class);
-        this.topicConsole.createTopic(topic).setHandler(ar -> {
-            if (ar.succeeded()) {
-                routingContext.response().setStatusCode(202).end();
-            } else {
-                routingContext.response().setStatusCode(500).end();
-            }
-        });
+        log.info("Create topic");
+
+        try {
+            JsonObject json = new JsonObject(routingContext.getBodyAsString());
+            Topic topic = Topic.fromJson(json);
+            
+            this.topicConsole.createTopic(topic).setHandler(ar -> {
+                if (ar.succeeded()) {
+                    routingContext.response().setStatusCode(202).end();
+                } else {
+                    log.error("Topic creation failed", ar.cause());
+                    routingContext.response().setStatusCode(500).end();
+                }
+            });
+        } catch (Exception ex) {
+            log.error("Topic creation failed", ex);
+            routingContext.response().setStatusCode(500).end();
+        }
     }
 
     private void getTopics(RoutingContext routingContext) {
-        log.info("getTopics");
+        log.info("Get topics list");
         routingContext.response().end("list of topics");
     }
 
     private void getTopic(RoutingContext routingContext) {
-        log.info("getTopic");
+        log.info("Get topic metadata");
         String topicName = routingContext.request().getParam("topicname");
         routingContext.response().end(topicName);
     }
