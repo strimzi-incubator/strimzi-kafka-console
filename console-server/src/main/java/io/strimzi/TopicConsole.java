@@ -26,6 +26,25 @@ public class TopicConsole {
         this.kafkaBootstrapServers = kafkaBootstrapServers;
     }
 
+    public Future<Void> deleteTopic(String topicName) {
+
+        Future<Void> blockingFuture = Future.future();
+
+        this.vertx.createSharedWorkerExecutor("kubernetes-ops-pool").executeBlocking(
+            future -> {
+                Crds.topicOperation(this.kubeClient).inNamespace(this.namespace).withName(topicName).delete();
+                future.complete();
+            }, res -> {
+                if (res.succeeded()) {
+                    blockingFuture.complete();
+                } else {
+                    blockingFuture.fail(res.cause());
+                }
+            });   
+            
+        return blockingFuture;
+    }
+
     public Future<Void> createTopic(Topic topic) {
 
         KafkaTopic kafkaTopic = new KafkaTopicBuilder()

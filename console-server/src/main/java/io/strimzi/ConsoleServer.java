@@ -44,6 +44,7 @@ public class ConsoleServer extends AbstractVerticle {
         router.get("/topics").handler(this::getTopics);
         router.get("/topics/:topicname").handler(this::getTopic);
         router.post("/topics").handler(this::createTopic);
+        router.delete("/topics/:topicname").handler(this::deleteTopic);
 
         server.requestHandler(router).listen(8080, ar -> {
             if (ar.succeeded()) {
@@ -75,6 +76,20 @@ public class ConsoleServer extends AbstractVerticle {
             log.error("Topic creation failed", ex);
             routingContext.response().setStatusCode(500).end();
         }
+    }
+
+    private void deleteTopic(RoutingContext routingContext) {
+        log.info("Delete topic");
+
+        String topicName = routingContext.request().getParam("topicname");
+        this.topicConsole.deleteTopic(topicName).setHandler(ar -> {
+            if (ar.succeeded()) {
+                routingContext.response().setStatusCode(202).end();
+            } else {
+                log.error("Topic deletion failed", ar.cause());
+                routingContext.response().setStatusCode(500).end();
+            }
+        });
     }
 
     private void getTopics(RoutingContext routingContext) {
