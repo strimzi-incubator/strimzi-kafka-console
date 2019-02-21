@@ -26,10 +26,10 @@ public class ConsoleServer extends AbstractVerticle {
 
     private TopicConsole topicConsole;
 
-    public ConsoleServer(ConsoleServerConfig config, KubernetesClient kubeClient) {
+    public ConsoleServer(ConsoleServerConfig config, KubernetesClient kubeClient, TopicConsole topicConsole) {
         this.config = config;
         this.kubeClient = kubeClient;
-        this.topicConsole = new TopicConsole(kubeClient, config.getKafkaBootstrapServers());
+        this.topicConsole = topicConsole;
     }
 
     @Override
@@ -59,7 +59,13 @@ public class ConsoleServer extends AbstractVerticle {
     private void createTopic(RoutingContext routingContext) {
         log.info("createTopic");
         Topic topic = Json.decodeValue(routingContext.getBodyAsString(), Topic.class);
-        routingContext.response().end(topic.getName());
+        this.topicConsole.createTopic(topic).setHandler(ar -> {
+            if (ar.succeeded()) {
+                routingContext.response().setStatusCode(202).end();
+            } else {
+                routingContext.response().setStatusCode(500).end();
+            }
+        });
     }
 
     private void getTopics(RoutingContext routingContext) {

@@ -12,19 +12,30 @@ import java.util.Map;
  */
  public class ConsoleServerConfig {
 
+    public static final String STRIMZI_NAMESPACE = "STRIMZI_NAMESPACE";
     public static final String STRIMZI_KAFKA_BOOTSTRAP_SERVERS = "STRIMZI_KAFKA_BOOTSTRAP_SERVERS";
 
     public static final String DEFAULT_KAFKA_BOOTSTRAP_SERVERS = "localhost:9092";
 
+    private final String namespace;
     private final String kafkaBootstrapServers;
 
     /**
      * Constructor
      * 
+     * @param namespace namespace in which the console server run and create resources
      * @param kafkaBootstrapServers the the Kafka bootstrap servers list
      */
-    public ConsoleServerConfig(String kafkaBootstrapServers) {
+    public ConsoleServerConfig(String namespace, String kafkaBootstrapServers) {
+        this.namespace = namespace;
         this.kafkaBootstrapServers = kafkaBootstrapServers;
+    }
+
+    /**
+     * @return the namenamespace in which the console server run and create resourcesspace
+     */
+    public String getNamespace() {
+        return namespace;
     }
 
     /**
@@ -36,13 +47,18 @@ import java.util.Map;
 
     public static ConsoleServerConfig fromMap(Map<String, String> map) {
         
+        String namespace = map.get(ConsoleServerConfig.STRIMZI_NAMESPACE);
+        if (namespace == null || namespace.isEmpty()) {
+            throw new RuntimeException(ConsoleServerConfig.STRIMZI_NAMESPACE + " cannot be null");
+        }
+
         String kafkaBootstrapServers = DEFAULT_KAFKA_BOOTSTRAP_SERVERS;
         String kafkaBootstrapServersEnvVar = map.get(ConsoleServerConfig.STRIMZI_KAFKA_BOOTSTRAP_SERVERS);
         if (kafkaBootstrapServersEnvVar != null && !kafkaBootstrapServers.isEmpty()) {
             kafkaBootstrapServers = kafkaBootstrapServersEnvVar;
         }
 
-        return new ConsoleServerConfig(kafkaBootstrapServers);
+        return new ConsoleServerConfig(namespace,kafkaBootstrapServers);
     }
 
     @Override

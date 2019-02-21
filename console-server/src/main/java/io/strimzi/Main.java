@@ -34,7 +34,8 @@ public class Main {
     static Future<String> run(Vertx vertx, ConsoleServerConfig config, KubernetesClient kubeClient) {
 
         Future<String> fut = Future.future();
-        ConsoleServer consoleServer = new ConsoleServer(config, kubeClient);
+        TopicConsole topicConsole = new TopicConsole(vertx, kubeClient, config.getNamespace(), config.getKafkaBootstrapServers());
+        ConsoleServer consoleServer = new ConsoleServer(config, kubeClient, topicConsole);
 
         vertx.deployVerticle(consoleServer, 
             res -> {
