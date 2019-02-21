@@ -4,6 +4,7 @@ metadata:
   name: strimzi-console-server
   labels:
     name: strimzi-console-server
+    app: strimzi
 spec:
   ports:
   - port: 8080

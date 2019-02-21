@@ -2,4 +2,4 @@
 
 NAMESPACE=${STRIMZI_NAMESPACE:-strimzi}
 
-oc apply -f kafka-persistent.yaml -n $NAMESPACE
+oc apply -f cluster/kafka-persistent.yaml -n $NAMESPACE
