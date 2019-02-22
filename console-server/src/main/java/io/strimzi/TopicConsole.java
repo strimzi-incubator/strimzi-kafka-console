@@ -6,6 +6,7 @@ package io.strimzi;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.strimzi.api.kafka.Crds;
+import io.strimzi.api.kafka.KafkaTopicList;
 import io.strimzi.api.kafka.model.KafkaTopic;
 import io.strimzi.api.kafka.model.KafkaTopicBuilder;
 import io.vertx.core.Future;
@@ -24,6 +25,23 @@ public class TopicConsole {
         this.kubeClient = kubeClient;
         this.namespace = namespace;
         this.kafkaBootstrapServers = kafkaBootstrapServers;
+    }
+
+    public Future<KafkaTopicList> listTopics() {
+
+        Future<KafkaTopicList> blockingFuture = Future.future();
+
+        this.vertx.createSharedWorkerExecutor("kubernetes-ops-pool").executeBlocking(
+            future -> {
+                try {
+                    KafkaTopicList kafkaTopicList = Crds.topicOperation(this.kubeClient).inNamespace(this.namespace).list();
+                    future.complete(kafkaTopicList);
+                } catch (Exception ex) {
+                    future.fail(ex);
+                }
+            }, blockingFuture.completer());   
+            
+        return blockingFuture;
     }
 
     public Future<Void> deleteTopic(String topicName) {

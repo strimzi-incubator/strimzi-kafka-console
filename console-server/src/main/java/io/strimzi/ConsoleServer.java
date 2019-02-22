@@ -5,13 +5,17 @@
 
 package io.strimzi;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.fabric8.kubernetes.client.KubernetesClient;
+import io.strimzi.api.kafka.model.KafkaTopic;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
@@ -58,14 +62,14 @@ public class ConsoleServer extends AbstractVerticle {
     }
 
     private void createTopic(RoutingContext routingContext) {
-        log.info("Create topic");
-
         try {
             JsonObject json = new JsonObject(routingContext.getBodyAsString());
             Topic topic = Topic.fromJson(json);
+            log.info("Creating topic {}", topic);
             
             this.topicConsole.createTopic(topic).setHandler(ar -> {
                 if (ar.succeeded()) {
+                    log.info("Topic {} created", topic.getName());
                     routingContext.response().setStatusCode(202).end();
                 } else {
                     log.error("Topic creation failed", ar.cause());
@@ -79,11 +83,12 @@ public class ConsoleServer extends AbstractVerticle {
     }
 
     private void deleteTopic(RoutingContext routingContext) {
-        log.info("Delete topic");
-
         String topicName = routingContext.request().getParam("topicname");
+        log.info("Deleting topic {}", topicName);
+
         this.topicConsole.deleteTopic(topicName).setHandler(ar -> {
             if (ar.succeeded()) {
+                log.info("Topic {} deleted", topicName);
                 routingContext.response().setStatusCode(202).end();
             } else {
                 log.error("Topic deletion failed", ar.cause());
@@ -93,8 +98,35 @@ public class ConsoleServer extends AbstractVerticle {
     }
 
     private void getTopics(RoutingContext routingContext) {
-        log.info("Get topics list");
-        routingContext.response().end("list of topics");
+        log.info("Getting topics list");
+
+        this.topicConsole.listTopics().setHandler(ar -> {
+            if (ar.succeeded()) {               
+
+                List<KafkaTopic> kafkaTopicList = ar.result().getItems();
+                JsonArray jsonTopics = new JsonArray();
+                
+                for (KafkaTopic kafkaTopic : kafkaTopicList) {
+                    Topic topic = new Topic(kafkaTopic.getMetadata().getName(), 
+                                            kafkaTopic.getSpec().getPartitions(), 
+                                            kafkaTopic.getSpec().getReplicas(), 
+                                            null, // we are not interested in configuration
+                                            kafkaTopic.getMetadata().getCreationTimestamp());
+                    jsonTopics.add(Topic.toJson(topic));
+                }
+                
+                log.info("Topics list {}", jsonTopics);
+                if (!jsonTopics.isEmpty()) {
+                    routingContext.response().setStatusCode(200).end(jsonTopics.encode());
+                } else {
+                    routingContext.response().setStatusCode(404).end();
+                }
+
+            } else {
+                log.error("Getting topics list failed", ar.cause());
+                routingContext.response().setStatusCode(500).end();
+            }
+        });
     }
 
     private void getTopic(RoutingContext routingContext) {

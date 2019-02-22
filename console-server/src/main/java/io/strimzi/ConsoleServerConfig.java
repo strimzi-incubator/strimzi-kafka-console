@@ -64,8 +64,8 @@ import java.util.Map;
     @Override
     public String toString() {
         return "ConsoleServerConfig(" +
-                "namespace=" + namespace +
-                ",kafkaBootstrapServers=" + kafkaBootstrapServers +
+                "namespace=" + this.namespace +
+                ",kafkaBootstrapServers=" + this.kafkaBootstrapServers +
                 ")";
     }
  }

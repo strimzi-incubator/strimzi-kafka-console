@@ -16,14 +16,16 @@ public class Topic {
     private int partitions;
     private int replicas;
     private Map<String, Object> config = new HashMap<>();
+    private String creationTimestamp;
 
-    public Topic(String name, int partitions, int replicas, Map<String, Object> config) {
+    public Topic(String name, int partitions, int replicas, Map<String, Object> config, String creationTimestamp) {
         this.name = name;
         this.partitions = partitions;
         this.replicas = replicas;
         if (config != null) {
             this.config.putAll(config);
         }
+        this.creationTimestamp = creationTimestamp;
     }
 
     /**
@@ -82,6 +84,20 @@ public class Topic {
         this.config = config;
     }
 
+    /**
+     * @return the creationTimestamp
+     */
+    public String getCreationTimestamp() {
+        return this.creationTimestamp;
+    }
+
+    /**
+     * @param creationTimestamp the creationTimestamp to set
+     */
+    public void setCreationTimestamp(String creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
+    }
+
     public static Topic fromJson(JsonObject json) {
         String name = json.getString("name");
         int partitions = Integer.parseInt(json.getValue("partitions").toString());
@@ -92,6 +108,28 @@ public class Topic {
         if (configJson != null) {
             config = configJson.getMap();
         }
-        return new Topic(name, partitions, replicas, config);
+        String creationTimestamp = json.getString("creationTimestamp");
+        return new Topic(name, partitions, replicas, config, creationTimestamp);
     }
+
+    public static JsonObject toJson(Topic topic) {
+        JsonObject json = new JsonObject();
+        json.put("name", topic.getName());
+        json.put("creationTimestamp", topic.getCreationTimestamp());
+        json.put("partitions", topic.getPartitions());
+        json.put("replicas", topic.getReplicas());
+        return json;
+    }
+
+    @Override
+    public String toString() {
+        return "Topic(" +
+                "name=" + this.name +
+                ",partitions=" + this.partitions + 
+                ",replicas=" + this.replicas + 
+                ",creationTimestamp=" + this.creationTimestamp +
+                ",config=" + this.config +
+                ")";
+    }
+    
  }
