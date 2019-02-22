@@ -13,7 +13,7 @@ import java.util.Map;
  public class ConsoleServerConfig {
 
     public static final String STRIMZI_NAMESPACE = "STRIMZI_NAMESPACE";
-    public static final String STRIMZI_KAFKA_BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
+    public static final String KAFKA_BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
 
     public static final String DEFAULT_KAFKA_BOOTSTRAP_SERVERS = "localhost:9092";
 
@@ -53,7 +53,7 @@ import java.util.Map;
         }
 
         String kafkaBootstrapServers = DEFAULT_KAFKA_BOOTSTRAP_SERVERS;
-        String kafkaBootstrapServersEnvVar = map.get(ConsoleServerConfig.STRIMZI_KAFKA_BOOTSTRAP_SERVERS);
+        String kafkaBootstrapServersEnvVar = map.get(ConsoleServerConfig.KAFKA_BOOTSTRAP_SERVERS);
         if (kafkaBootstrapServersEnvVar != null && !kafkaBootstrapServers.isEmpty()) {
             kafkaBootstrapServers = kafkaBootstrapServersEnvVar;
         }
