@@ -5,7 +5,7 @@ Create the namespace/project where the Cluster Operator, the related Kafka cluse
 All the deploy scripts install all the resources in the `strimzi` namespace/project by default.
 It's possible to change the destination namespace/project setting the `STRIMZI_NAMESPACE` env var before running the scripts.
 
-    export STRIMZI_NAMESPACE=myproject
+    export STRIMZI_NAMESPACE=<my-namespace>
 
 ## Deploy Strimzi Cluster Operator
 
