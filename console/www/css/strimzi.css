@@ -1,0 +1,36 @@
+.view-container {
+  /* margin-top: 2em; */
+  position: relative;
+  top: 4em;
+}
+
+.controls:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+#filter, #sort {
+  float: left;
+}
+
+#sort {
+  margin-top: 0.5em;
+  margin-left: 1em;
+}
+
+.creationDate {
+  padding-right: 1em;
+}
+
+.notifications {
+  padding: 1em;
+}
+
+.strimzi-details {
+  font-size: 400%;
+}
+
+.strimzi-details-label {
+  font-weight: bold;
+}
