@@ -32,6 +32,8 @@ In order to monitor the Kafka cluster and the Zookeeper nodes, Prometheus and Gr
 
     ./openshift-deploy-monitoring.sh
 
+The script push Kafka and Zookeeper dashboards to Grafan through the API as well.
+
 ## Undeploy the Kafka cluster
 
 The undeploy script just deletes the `Kafka` resource so that the Cluster Operator takes care of that deleting the Kafka cluster.
