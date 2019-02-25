@@ -18,7 +18,7 @@ oc expose service/grafana -n $NAMESPACE
 GRAFANA_HOST_ROUTE=$(oc get routes grafana -o=jsonpath='{.status.ingress[0].host}{"\n"}')
 
 # wait for the Grafana deployment to be ready for getting cURL calls
-oc wait deployment/grafana --for condition=available
+oc rollout status deployment/grafana -w
 
 # POST Prometheus datasource configuration to Grafana
 curl -X POST http://admin:admin@${GRAFANA_HOST_ROUTE}/api/datasources -d @kafka/monitoring/dashboards/datasource.json --header "Content-Type: application/json"
