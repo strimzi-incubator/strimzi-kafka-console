@@ -26,6 +26,12 @@ It has to be deployed in the same namespece (env var `STRIMZI_NAMESPACE`) as the
 
     ./openshift-deploy-console-server.sh
 
+## Deploy Prometheus and Grafana for monitoring
+
+In order to monitor the Kafka cluster and the Zookeeper nodes, Prometheus and Grafana can be installed running the following script.
+
+    ./openshift-deploy-monitoring.sh
+
 ## Undeploy the Kafka cluster
 
 The undeploy script just deletes the `Kafka` resource so that the Cluster Operator takes care of that deleting the Kafka cluster.
