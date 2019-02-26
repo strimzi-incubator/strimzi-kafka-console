@@ -14,4 +14,8 @@
 
 # VSCode stuff
 .vscode/
+.history/
 **/.factorypath
+
+# node js
+**/node_modules
