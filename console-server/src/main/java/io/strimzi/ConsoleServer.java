@@ -8,6 +8,7 @@ package io.strimzi;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -107,12 +108,13 @@ public class ConsoleServer extends AbstractVerticle {
             if (ar.succeeded()) {               
 
                 List<KafkaTopic> kafkaTopicList = ar.result().getItems();
-                JsonArray jsonTopics = TopicUtils.to(kafkaTopicList);
-                
-                log.info("Topics list {}", jsonTopics);
-                if (!jsonTopics.isEmpty()) {
+
+                if (!kafkaTopicList.isEmpty()) {
+                    JsonArray jsonTopics = TopicUtils.to(kafkaTopicList);
+                    log.info("Topics list {}", jsonTopics);
                     routingContext.response().setStatusCode(200).end(jsonTopics.encode());
                 } else {
+                    log.info("Topics list is empty");
                     routingContext.response().setStatusCode(404).end();
                 }
 
@@ -130,11 +132,17 @@ public class ConsoleServer extends AbstractVerticle {
         this.topicConsole.getTopic(topicName).setHandler(ar -> {
             if (ar.succeeded()) {
                 TopicDescription topicDescription = ar.result();
-                log.info("Topic {} metadata {}", topicName, topicDescription);
-                routingContext.response().setStatusCode(200).end(TopicUtils.to(topicDescription).encode());
+                JsonObject json = TopicUtils.to(topicDescription);
+                log.info("Topic {} metadata {}", topicName, json);
+                routingContext.response().setStatusCode(200).end(json.encode());
             } else {
                 log.error("Getting topic metadata failed", ar.cause());
-                routingContext.response().setStatusCode(500).end();
+
+                if (ar.cause() instanceof UnknownTopicOrPartitionException) {
+                    routingContext.response().setStatusCode(404).end();
+                } else {
+                    routingContext.response().setStatusCode(500).end();
+                }
             }
         });
     }
