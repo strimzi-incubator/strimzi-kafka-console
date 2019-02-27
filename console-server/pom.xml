@@ -14,9 +14,6 @@
         <junit.version>4.12</junit.version>
         <log4j.version>2.11.1</log4j.version>
         <strimzi.version>0.10.0</strimzi.version>
-        <fabric8.kubernetes-client.version>4.1.1</fabric8.kubernetes-client.version>
-        <fabric8.openshift-client.version>4.1.1</fabric8.openshift-client.version>
-        <fabric8.kubernetes-model.version>4.1.1</fabric8.kubernetes-model.version>
     </properties>
     
     <dependencies>
@@ -39,21 +36,6 @@
             <groupId>io.strimzi</groupId>
             <artifactId>api</artifactId>
             <version>${strimzi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-client</artifactId>
-            <version>${fabric8.kubernetes-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>openshift-client</artifactId>
-            <version>${fabric8.openshift-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-model</artifactId>
-            <version>${fabric8.kubernetes-model.version}</version>
         </dependency>
 
         <!-- testing -->

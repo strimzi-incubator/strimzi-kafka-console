@@ -5,6 +5,7 @@
 
 package io.strimzi;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -12,8 +13,6 @@ import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.fabric8.kubernetes.client.KubernetesClient;
-import io.strimzi.api.kafka.model.KafkaTopic;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServer;
@@ -22,20 +21,16 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.TopicDescription;
 
 public class ConsoleServer extends AbstractVerticle {
 
     private static final Logger log = LogManager.getLogger(ConsoleServer.class);
 
-    private final ConsoleServerConfig config;
-    private final KubernetesClient kubeClient;
-
     private TopicConsole topicConsole;
 
-    public ConsoleServer(ConsoleServerConfig config, KubernetesClient kubeClient, TopicConsole topicConsole) {
-        this.config = config;
-        this.kubeClient = kubeClient;
+    public ConsoleServer(TopicConsole topicConsole) {
         this.topicConsole = topicConsole;
     }
 
@@ -69,11 +64,10 @@ public class ConsoleServer extends AbstractVerticle {
             JsonObject json = new JsonObject(routingContext.getBodyAsString());
             log.info("Creating topic {}", json);
             
-            // TODO: making labels configurable
-            KafkaTopic kafkaTopic = TopicUtils.from(json, Collections.singletonMap("strimzi.io/cluster", "my-cluster"));
-            this.topicConsole.createTopic(kafkaTopic).setHandler(ar -> {
+            NewTopic newTopic = TopicUtils.from(json);
+            this.topicConsole.createTopic(newTopic).setHandler(ar -> {
                 if (ar.succeeded()) {
-                    log.info("Topic {} created", kafkaTopic.getMetadata().getName());
+                    log.info("Topic {} created", newTopic.getName());
                     routingContext.response().setStatusCode(202).end();
                 } else {
                     log.error("Topic creation failed", ar.cause());
@@ -96,7 +90,12 @@ public class ConsoleServer extends AbstractVerticle {
                 routingContext.response().setStatusCode(202).end();
             } else {
                 log.error("Topic deletion failed", ar.cause());
-                routingContext.response().setStatusCode(500).end();
+                
+                if (ar.cause() instanceof UnknownTopicOrPartitionException) {
+                    routingContext.response().setStatusCode(404).end();
+                } else {
+                    routingContext.response().setStatusCode(500).end();
+                }
             }
         });
     }
@@ -107,17 +106,28 @@ public class ConsoleServer extends AbstractVerticle {
         this.topicConsole.listTopics().setHandler(ar -> {
             if (ar.succeeded()) {               
 
-                List<KafkaTopic> kafkaTopicList = ar.result().getItems();
+                List<String> topics = new ArrayList<>(ar.result());
 
-                if (!kafkaTopicList.isEmpty()) {
-                    JsonArray jsonTopics = TopicUtils.to(kafkaTopicList);
-                    log.info("Topics list {}", jsonTopics);
-                    routingContext.response().setStatusCode(200).end(jsonTopics.encode());
+                if (!topics.isEmpty()) {
+
+                    this.topicConsole.describeTopics(topics).setHandler(res -> {
+
+                        if (res.succeeded()) {
+                            JsonArray jsonTopics = TopicUtils.to(res.result());
+                            log.info("Topics list {}", jsonTopics);
+                            routingContext.response().setStatusCode(200).end(jsonTopics.encode());
+                        } else {
+                            log.error("Getting topics descriptions failed", res.cause());
+                            routingContext.response().setStatusCode(500).end();
+                        }
+
+                    });
+
                 } else {
                     log.info("Topics list is empty");
                     routingContext.response().setStatusCode(404).end();
                 }
-
+                
             } else {
                 log.error("Getting topics list failed", ar.cause());
                 routingContext.response().setStatusCode(500).end();
@@ -129,9 +139,9 @@ public class ConsoleServer extends AbstractVerticle {
         String topicName = routingContext.request().getParam("topicname");
         log.info("Get topic metadata");
         
-        this.topicConsole.getTopic(topicName).setHandler(ar -> {
+        this.topicConsole.describeTopics(Collections.singletonList(topicName)).setHandler(ar -> {
             if (ar.succeeded()) {
-                TopicDescription topicDescription = ar.result();
+                TopicDescription topicDescription = ar.result().get(topicName);
                 JsonObject json = TopicUtils.to(topicDescription);
                 log.info("Topic {} metadata {}", topicName, json);
                 routingContext.response().setStatusCode(200).end(json.encode());
