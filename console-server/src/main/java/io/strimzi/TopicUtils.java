@@ -5,68 +5,59 @@
 
 package io.strimzi;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.strimzi.api.kafka.model.KafkaTopic;
-import io.strimzi.api.kafka.model.KafkaTopicBuilder;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.TopicDescription;
 import io.vertx.kafka.client.common.TopicPartitionInfo;
 
 /**
- * TopicUtils
+ * Utils class for topics related representation tranformation (JSON <-> Vert.x models)
  */
 public class TopicUtils {
 
     /**
-     * Get a {@link KafkaTopic} instance from a JSON representation
+     * Get a {@link NewTopic} instance from a JSON representation
      * 
      * @param the JSON representation
-     * @param labels labels to set on the {@link KafkaTopic} instance
-     * @return the {@link KafkaTopic} instance
+     * @return the {@link NewTopic} instance
      */
-    public static KafkaTopic from(JsonObject json, Map<String, String> labels) {
+    public static NewTopic from(JsonObject json) {
         String name = json.getString("name");
         int partitions = Integer.parseInt(json.getValue("partitions").toString());
         int replicas = Integer.parseInt(json.getValue("replicas").toString());
+
+        NewTopic newTopic = new NewTopic(name, partitions, (short)replicas);
 
         Map<String, Object> config = null;
         JsonObject configJson = json.getJsonObject("config");
         if (configJson != null) {
             config = configJson.getMap();
+            // from JSON we can have numeric values (i.e. partitions) but native admin client gets always strings
+            newTopic.setConfig(config.entrySet().stream()
+                                .collect(Collectors.toMap(
+                                    e -> e.getKey(), 
+                                    e -> String.valueOf(e.getValue()))));
         }
-        
-        return new KafkaTopicBuilder()
-                    .withNewMetadata()
-                        .withName(name)
-                        .addToLabels(labels)
-                    .endMetadata()
-                    .withNewSpec()
-                        .withTopicName(name)
-                        .withPartitions(partitions)
-                        .withReplicas(replicas)
-                        .withConfig(config)
-                    .endSpec()
-                    .build();
+        return newTopic;        
     }
 
     /**
-     * Get a JSON representation from a {@link KafkaTopic} instance
+     * Get a JSON representation from a map of topic names to related {@link TopicDescription} instance
      * 
-     * @param kafkaTopic the {@link KafkaTopic} instance
-     * @return the JSON representation
+     * @param topics map of topic names to related {@link TopicDescription} instance
+     * @return the JSON epresentation
      */
-    public static JsonObject to(KafkaTopic kafkaTopic) {
-        JsonObject json = new JsonObject();
-        json.put("name", kafkaTopic.getMetadata().getName());
-        json.put("creationTimestamp", kafkaTopic.getMetadata().getCreationTimestamp());
-        json.put("partitions", kafkaTopic.getSpec().getPartitions());
-        json.put("replicas", kafkaTopic.getSpec().getReplicas());
-        json.put("config", kafkaTopic.getSpec().getConfig());
-        return json;
+    public static JsonArray to(Map<String, TopicDescription> topics) {
+        JsonArray jsonTopics = new JsonArray();
+
+        for (Map.Entry<String, TopicDescription> topic : topics.entrySet()) {
+            jsonTopics.add(TopicUtils.to(topic.getValue()));
+        }
+        return jsonTopics;
     }
 
     /**
@@ -94,19 +85,5 @@ public class TopicUtils {
         }
         json.put("partitions", jsonPartitions);
         return json;
-    }
-   
-    /**
-     * Get a JSON representation from a {@link KafkaTopic} list
-     * 
-     * @param kafkaTopicList {@link KafkaTopic} list
-     * @return the JSON epresentation
-     */
-    public static JsonArray to(List<KafkaTopic> kafkaTopicList) {
-        JsonArray jsonTopics = new JsonArray();  
-        for (KafkaTopic kafkaTopic : kafkaTopicList) {
-            jsonTopics.add(TopicUtils.to(kafkaTopic));
-        }
-        return jsonTopics;
     }
 }
