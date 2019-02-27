@@ -78,21 +78,7 @@ public class TopicConsole {
         return blockingFuture;
     }
 
-    public Future<Void> createTopic(Topic topic) {
-
-        KafkaTopic kafkaTopic = new KafkaTopicBuilder()
-                                    .withNewMetadata()
-                                        .withName(topic.getName())
-                                        // TODO: make it configurable
-                                        .addToLabels("strimzi.io/cluster", "my-cluster")
-                                    .endMetadata()
-                                    .withNewSpec()
-                                        .withTopicName(topic.getName())
-                                        .withPartitions(topic.getPartitions())
-                                        .withReplicas(topic.getReplicas())
-                                        .withConfig(topic.getConfig())
-                                    .endSpec()
-                                    .build();
+    public Future<Void> createTopic(KafkaTopic kafkaTopic) {
 
         Future<Void> blockingFuture = Future.future();
 

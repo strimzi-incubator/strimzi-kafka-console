@@ -5,9 +5,8 @@
 
 package io.strimzi;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,8 +22,6 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.kafka.admin.TopicDescription;
-import io.vertx.kafka.client.common.Node;
-import io.vertx.kafka.client.common.TopicPartitionInfo;
 
 public class ConsoleServer extends AbstractVerticle {
 
@@ -69,12 +66,13 @@ public class ConsoleServer extends AbstractVerticle {
     private void createTopic(RoutingContext routingContext) {
         try {
             JsonObject json = new JsonObject(routingContext.getBodyAsString());
-            Topic topic = Topic.fromJson(json);
-            log.info("Creating topic {}", topic);
+            log.info("Creating topic {}", json);
             
-            this.topicConsole.createTopic(topic).setHandler(ar -> {
+            // TODO: making labels configurable
+            KafkaTopic kafkaTopic = TopicUtils.from(json, Collections.singletonMap("strimzi.io/cluster", "my-cluster"));
+            this.topicConsole.createTopic(kafkaTopic).setHandler(ar -> {
                 if (ar.succeeded()) {
-                    log.info("Topic {} created", topic.getName());
+                    log.info("Topic {} created", kafkaTopic.getMetadata().getName());
                     routingContext.response().setStatusCode(202).end();
                 } else {
                     log.error("Topic creation failed", ar.cause());
@@ -109,16 +107,7 @@ public class ConsoleServer extends AbstractVerticle {
             if (ar.succeeded()) {               
 
                 List<KafkaTopic> kafkaTopicList = ar.result().getItems();
-                JsonArray jsonTopics = new JsonArray();
-                
-                for (KafkaTopic kafkaTopic : kafkaTopicList) {
-                    Topic topic = new Topic(kafkaTopic.getMetadata().getName(), 
-                                            kafkaTopic.getSpec().getPartitions(), 
-                                            kafkaTopic.getSpec().getReplicas(), 
-                                            null, // we are not interested in configuration
-                                            kafkaTopic.getMetadata().getCreationTimestamp());
-                    jsonTopics.add(Topic.toJson(topic));
-                }
+                JsonArray jsonTopics = TopicUtils.to(kafkaTopicList);
                 
                 log.info("Topics list {}", jsonTopics);
                 if (!jsonTopics.isEmpty()) {
@@ -142,27 +131,7 @@ public class ConsoleServer extends AbstractVerticle {
             if (ar.succeeded()) {
                 TopicDescription topicDescription = ar.result();
                 log.info("Topic {} metadata {}", topicName, topicDescription);
-
-                List<TopicPartitions.PartitionInfo> partitions = new ArrayList<>();
-                for (TopicPartitionInfo topicPartitionInfo : topicDescription.getPartitions()) {
-
-                    List<Integer> replicas = topicPartitionInfo.getReplicas().stream()
-                                                .map(n -> n.getId())
-                                                .collect(Collectors.toList());
-
-                    List<Integer> isr = topicPartitionInfo.getIsr().stream()
-                                                .map(n -> n.getId())
-                                                .collect(Collectors.toList());
-
-                    TopicPartitions.PartitionInfo partitionInfo =
-                        new TopicPartitions.PartitionInfo(topicPartitionInfo.getPartition(), topicPartitionInfo.getLeader().getId(), replicas, isr);
-
-                    partitions.add(partitionInfo);
-                }
-
-                TopicPartitions topicPartitions = new TopicPartitions(topicDescription.getName(), partitions);
-                routingContext.response().setStatusCode(200).end(TopicPartitions.toJson(topicPartitions).encode());
-                
+                routingContext.response().setStatusCode(200).end(TopicUtils.to(topicDescription).encode());
             } else {
                 log.error("Getting topic metadata failed", ar.cause());
                 routingContext.response().setStatusCode(500).end();
