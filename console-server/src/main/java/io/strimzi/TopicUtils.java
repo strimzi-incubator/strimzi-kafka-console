@@ -49,13 +49,14 @@ public class TopicUtils {
      * Get a JSON representation from a map of topic names to related {@link TopicDescription} instance
      * 
      * @param topics map of topic names to related {@link TopicDescription} instance
+     * @param consumers map of topic names to related number of consumers
      * @return the JSON epresentation
      */
-    public static JsonArray to(Map<String, TopicDescription> topics) {
+    public static JsonArray to(Map<String, TopicDescription> topics, Map<String, Integer> consumers) {
         JsonArray jsonTopics = new JsonArray();
 
         for (Map.Entry<String, TopicDescription> topic : topics.entrySet()) {
-            jsonTopics.add(TopicUtils.to(topic.getValue()));
+            jsonTopics.add(TopicUtils.to(topic.getValue(), consumers.getOrDefault(topic.getKey(), 0)));
         }
         return jsonTopics;
     }
@@ -64,9 +65,10 @@ public class TopicUtils {
      * Get a JSON representation from a {@link TopicDescription} instance
      * 
      * @param topicDescription the {@link TopicDescription} instance
+     * @param consumers number of consumers for the topic
      * @return the JSON epresentation
      */
-    public static JsonObject to(TopicDescription topicDescription) {
+    public static JsonObject to(TopicDescription topicDescription, int consumers) {
         JsonObject json = new JsonObject();
         json.put("name", topicDescription.getName());
 
@@ -84,6 +86,7 @@ public class TopicUtils {
             jsonPartitions.add(jsonTopicPartitionInfo);
         }
         json.put("partitions", jsonPartitions);
+        json.put("consumers", consumers);
         return json;
     }
 }

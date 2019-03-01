@@ -9,20 +9,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.admin.AdminClientConfig;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.kafka.admin.ConsumerGroupDescription;
 import io.vertx.kafka.admin.KafkaAdminClient;
 import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.TopicDescription;
 
-public class TopicConsole {
+public class KafkaConsole {
 
     private final KafkaAdminClient kafkaAdminClient;
 
-    public TopicConsole(Vertx vertx, String kafkaBootstrapServers) {
+    public KafkaConsole(Vertx vertx, String kafkaBootstrapServers) {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServers);
 
@@ -91,6 +93,43 @@ public class TopicConsole {
     public Future<Map<String, TopicDescription>> describeTopics(List<String> topicNames) {
         Future<Map<String, TopicDescription>> future = Future.future();
         this.kafkaAdminClient.describeTopics(topicNames, res -> {
+            if (res.succeeded()) {
+                future.complete(res.result());
+            } else {
+                future.fail(res.cause());
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Get the list of consumer groups
+     * 
+     * @return a {@link Future} with the set of consumer groups
+     */
+    public Future<Set<String>> listConsumerGroups() {
+        Future<Set<String>> future = Future.future();
+        this.kafkaAdminClient.listConsumerGroups(res -> {
+            if (res.succeeded()) {
+                future.complete(res.result().stream()
+                                .map(cg -> cg.getGroupId())
+                                .collect(Collectors.toSet()));
+            } else {
+                future.fail(res.cause());
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Get information for the provided list of consumer groups
+     * 
+     * @param consumerGroups list of consumer groups for which getting information
+     * @return a {@link Future} with the mapping between consumer group and related descriptions with information
+     */
+    public Future<Map<String, ConsumerGroupDescription>> describeConsumerGroups(List<String> consumerGroups) {
+        Future<Map<String, ConsumerGroupDescription>> future = Future.future();
+        this.kafkaAdminClient.describeConsumerGroups(consumerGroups, res -> {
             if (res.succeeded()) {
                 future.complete(res.result());
             } else {

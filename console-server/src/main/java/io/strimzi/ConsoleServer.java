@@ -7,7 +7,14 @@ package io.strimzi;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.kafka.common.errors.UnknownTopicOrPartitionException;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +28,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.kafka.admin.ConsumerGroupDescription;
+import io.vertx.kafka.admin.MemberDescription;
 import io.vertx.kafka.admin.NewTopic;
 import io.vertx.kafka.admin.TopicDescription;
 
@@ -28,10 +37,10 @@ public class ConsoleServer extends AbstractVerticle {
 
     private static final Logger log = LogManager.getLogger(ConsoleServer.class);
 
-    private TopicConsole topicConsole;
+    private KafkaConsole kafkaConsole;
 
-    public ConsoleServer(TopicConsole topicConsole) {
-        this.topicConsole = topicConsole;
+    public ConsoleServer(KafkaConsole kafkaConsole) {
+        this.kafkaConsole = kafkaConsole;
     }
 
     @Override
@@ -65,7 +74,7 @@ public class ConsoleServer extends AbstractVerticle {
             log.info("Creating topic {}", json);
             
             NewTopic newTopic = TopicUtils.from(json);
-            this.topicConsole.createTopic(newTopic).setHandler(ar -> {
+            this.kafkaConsole.createTopic(newTopic).setHandler(ar -> {
                 if (ar.succeeded()) {
                     log.info("Topic {} created", newTopic.getName());
                     routingContext.response().setStatusCode(202).end();
@@ -84,7 +93,7 @@ public class ConsoleServer extends AbstractVerticle {
         String topicName = routingContext.request().getParam("topicname");
         log.info("Deleting topic {}", topicName);
 
-        this.topicConsole.deleteTopic(topicName).setHandler(ar -> {
+        this.kafkaConsole.deleteTopic(topicName).setHandler(ar -> {
             if (ar.succeeded()) {
                 log.info("Topic {} deleted", topicName);
                 routingContext.response().setStatusCode(202).end();
@@ -103,24 +112,35 @@ public class ConsoleServer extends AbstractVerticle {
     private void getTopics(RoutingContext routingContext) {
         log.info("Getting topics list");
 
-        this.topicConsole.listTopics().setHandler(ar -> {
+        // get topics list
+        this.kafkaConsole.listTopics().setHandler(ar -> {
             if (ar.succeeded()) {               
 
                 List<String> topics = new ArrayList<>(ar.result());
 
                 if (!topics.isEmpty()) {
 
-                    this.topicConsole.describeTopics(topics).setHandler(res -> {
+                    // get topics description with all metadata
+                    this.kafkaConsole.describeTopics(topics).setHandler(res -> {
 
                         if (res.succeeded()) {
-                            JsonArray jsonTopics = TopicUtils.to(res.result());
-                            log.info("Topics list {}", jsonTopics);
-                            routingContext.response().setStatusCode(200).end(jsonTopics.encode());
+
+                            computeConsumers().setHandler(res2 -> {
+
+                                if (res2.succeeded()) {
+                                    JsonArray jsonTopics = TopicUtils.to(res.result(), res2.result());
+                                    log.info("Topics list {}", jsonTopics);
+                                    routingContext.response().setStatusCode(200).end(jsonTopics.encode());
+                                } else {
+                                    routingContext.response().setStatusCode(500).end();
+                                }
+
+                            });
+
                         } else {
                             log.error("Getting topics descriptions failed", res.cause());
                             routingContext.response().setStatusCode(500).end();
                         }
-
                     });
 
                 } else {
@@ -139,12 +159,20 @@ public class ConsoleServer extends AbstractVerticle {
         String topicName = routingContext.request().getParam("topicname");
         log.info("Get topic metadata");
         
-        this.topicConsole.describeTopics(Collections.singletonList(topicName)).setHandler(ar -> {
+        this.kafkaConsole.describeTopics(Collections.singletonList(topicName)).setHandler(ar -> {
             if (ar.succeeded()) {
                 TopicDescription topicDescription = ar.result().get(topicName);
-                JsonObject json = TopicUtils.to(topicDescription);
-                log.info("Topic {} metadata {}", topicName, json);
-                routingContext.response().setStatusCode(200).end(json.encode());
+
+                computeConsumers().setHandler(ar2 -> {
+                    if (ar2.succeeded()) {
+                        JsonObject json = TopicUtils.to(topicDescription, ar2.result().getOrDefault(topicName, 0));
+                        log.info("Topic {} metadata {}", topicName, json);
+                        routingContext.response().setStatusCode(200).end(json.encode());
+                    } else {
+                        routingContext.response().setStatusCode(500).end();
+                    }
+                });
+
             } else {
                 log.error("Getting topic metadata failed", ar.cause());
 
@@ -161,5 +189,63 @@ public class ConsoleServer extends AbstractVerticle {
     public void stop(Future<Void> stopFuture) throws Exception {
         log.info("Stopping ConsoleServer");
         super.stop(stopFuture);
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
+
+    private Future<Map<String, Integer>> computeConsumers() {
+
+        Future<Map<String, Integer>> future = Future.future();
+        Map<String, Integer> consumers = new HashMap<>();
+
+        // get consumer groups list
+        this.kafkaConsole.listConsumerGroups().setHandler(res2 -> {
+
+            if (res2.succeeded()) {
+
+                List<String> consumerGroups = new ArrayList<>(res2.result());
+                if (!consumerGroups.isEmpty()) {
+
+                    // get consumer groups description for processing number of consumers per topic
+                    this.kafkaConsole.describeConsumerGroups(consumerGroups).setHandler(res3 -> {
+
+                        if (res3.succeeded()) {
+                            
+                            for (Map.Entry<String, ConsumerGroupDescription> entry : res3.result().entrySet()) {
+                                
+                                for (MemberDescription m : entry.getValue().getMembers()) {
+                                    
+                                    List<String> topicsForConsumers = m.getAssignment().getTopicPartitions().stream()
+                                                            .filter(distinctByKey(tp -> tp.getTopic()))
+                                                            .map(tp -> tp.getTopic())
+                                                            .collect(Collectors.toList());
+
+                                    for (String topic : topicsForConsumers) {
+                                        consumers.merge(topic, 1, Integer::sum);
+                                    }
+                                }
+                            }
+                            future.complete(consumers);
+                            
+                        } else {
+                            log.error("Getting consumer groups descriptions failed", res3.cause());
+                            future.fail(res3.cause());
+                        }
+                    });
+
+                } else {
+                    future.complete(consumers);
+                }
+
+            } else {
+                log.error("Getting consumer groups list failed", res2.cause());
+                future.fail(res2.cause());
+            }
+        });
+
+        return future;
     }
 }
