@@ -1,5 +1,6 @@
 #!/bin/bash
 
 NAMESPACE=${STRIMZI_NAMESPACE:-strimzi}
+CLUSTER=${STRIMZI_CLUSTER:-my-cluster}
 
-oc delete kafka my-cluster -n $NAMESPACE
+oc delete kafka $CLUSTER -n $NAMESPACE

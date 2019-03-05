@@ -7,6 +7,11 @@ It's possible to change the destination namespace/project setting the `STRIMZI_N
 
     export STRIMZI_NAMESPACE=<my-namespace>
 
+The default name for the Kafka cluster is `ḿy-cluster`.
+It's possible to change this name setting the `STRIMZI_CLUSTER` env var before running the scripts.
+
+    export STRIMZI_CLUSTER=<my-cluster-name>
+
 ## Deploy Strimzi Cluster Operator
 
 In order to install the Cluster Operator, the logged user needs to have **admin rights** on the OpenShift cluster due to the CRDs (Custom Resource Definitions) which is installed.
