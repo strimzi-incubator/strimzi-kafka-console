@@ -1,31 +1,25 @@
 # Strimzi console
 
-A patternfly based GUI for monitoring and maintaining strimzi topics. The console
-can be accessed on port 8888.
+A patternfly based GUI for monitoring and maintaining strimzi topics.
+
+
+## For development
 
 For development purposes, it can be run outside of the local openshift
 cluster and will connect to the console_server service on port 8080
 
-## Prerequisites
+### Prerequisites
 
 - nodejs installed
 - a running strimzi instance 
 
-## Initialization
-
+### Initialization
 
 `cd console`
 
 `npm install`
 
-`cd www`
-
-`npm install`
-
-
-## Running the console
-
-### Setup port forwarding
+#### Setup port forwarding
 
 Get the list of running pods:
 
