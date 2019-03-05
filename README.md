@@ -24,6 +24,12 @@ The Kafka cluster is deployed just creating a new `Kafka` resource running the f
 
     ./openshift-deploy-kafka.sh
 
+## Deploy the Kafka topics
+
+The Kafka topics are created via `KafkaTopic` resources running the following script.
+
+    ./openshift-deploy-topics.sh
+
 ## Deploy the Console Server
 
 The Console Server exposes an HTTP REST API for the Web UI for handling topics in the cluster.
