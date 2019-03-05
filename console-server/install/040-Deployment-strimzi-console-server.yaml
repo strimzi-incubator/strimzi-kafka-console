@@ -14,7 +14,7 @@ spec:
       serviceAccountName: strimzi-console-server
       containers:
       - name: strimzi-console-server
-        image: docker.io/ppatierno/console-server:latest
+        image: quay.io/redhatdemo/console-server:latest
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
           value: my-cluster-kafka-bootstrap:9092
