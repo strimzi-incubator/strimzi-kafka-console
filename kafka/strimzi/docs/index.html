@@ -1686,7 +1686,7 @@ For more information on the different configuration options supported by the <co
 <div class="sect4">
 <h5 id="creating-new-image-from-base-str"><a class="link" href="#creating-new-image-from-base-str">Creating a Docker image from the Kafka Connect base image</a></h5>
 <div class="paragraph">
-<p>A container image for running Kafka Connect using Strimzi is available on <a href="https://hub.docker.com/u/strimzi" target="_blank" rel="noopener">Docker Hub</a> as <code>strimzi/kafka-connect:0.11.0-kafka-2.1.0</code>. You can use this as a base image for creating your own custom image with additional connector plug-ins.</p>
+<p>A container image for running Kafka Connect using Strimzi is available on <a href="https://hub.docker.com/u/strimzi" target="_blank" rel="noopener">Docker Hub</a> as <code>strimzi/kafka-connect:0.11.1-kafka-2.1.0</code>. You can use this as a base image for creating your own custom image with additional connector plug-ins.</p>
 </div>
 <div class="paragraph">
 <p>The following procedure explains how to create your custom image and add it to the <code>/opt/kafka/plugins</code> directory. At startup, the AMQ Streams version of Kafka Connect loads any third-party connector plug-ins contained in the <code>/opt/kafka/plugins</code> directory.</p>
@@ -1706,10 +1706,10 @@ For more information on the different configuration options supported by the <co
 <div class="title">Procedure</div>
 <ol class="arabic">
 <li>
-<p>Create a new <code>Dockerfile</code> using <code>strimzi/kafka-connect:0.11.0-kafka-2.1.0</code> as the base image:</p>
+<p>Create a new <code>Dockerfile</code> using <code>strimzi/kafka-connect:0.11.1-kafka-2.1.0</code> as the base image:</p>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code>FROM strimzi/kafka-connect:0.11.0-kafka-2.1.0
+<pre class="highlightjs highlight"><code>FROM strimzi/kafka-connect:0.11.1-kafka-2.1.0
 USER root:root
 COPY ./<em>my-plugins</em>/ /opt/kafka/plugins/
 USER kafka:kafka</code></pre>
@@ -1759,7 +1759,7 @@ spec:
 <p>You can use OpenShift <a href="https://docs.openshift.org/3.9/dev_guide/builds/index.html" target="_blank" rel="noopener">builds</a> and the  <a href="https://docs.openshift.org/3.9/creating_images/s2i.html#creating-images-s2i" target="_blank" rel="noopener">Source-to-Image (S2I)</a> framework to create new container images. An OpenShift build takes a builder image with S2I support, together with source code and binaries provided by the user, and uses them to build a new container image. Once built, container images are stored in OpenShift&#8217;s local container image repository and are available for use in deployments.</p>
 </div>
 <div class="paragraph">
-<p>A Kafka Connect builder image with S2I support is provided by Strimzi on the <a href="https://hub.docker.com/u/strimzi" target="_blank" rel="noopener">Docker Hub</a> as <code>strimzi/kafka-connect-s2i:0.11.0-kafka-2.1.0</code>. This S2I image takes your binaries (with plug-ins and connectors) and stores them in the <code>/tmp/kafka-plugins/s2i</code> directory. It creates a new Kafka Connect image from this directory, which can then be used with the Kafka Connect deployment. When started using the enhanced image, Kafka Connect loads any third-party plug-ins from the <code>/tmp/kafka-plugins/s2i</code> directory.</p>
+<p>A Kafka Connect builder image with S2I support is provided by Strimzi on the <a href="https://hub.docker.com/u/strimzi" target="_blank" rel="noopener">Docker Hub</a> as <code>strimzi/kafka-connect-s2i:0.11.1-kafka-2.1.0</code>. This S2I image takes your binaries (with plug-ins and connectors) and stores them in the <code>/tmp/kafka-plugins/s2i</code> directory. It creates a new Kafka Connect image from this directory, which can then be used with the Kafka Connect deployment. When started using the enhanced image, Kafka Connect loads any third-party plug-ins from the <code>/tmp/kafka-plugins/s2i</code> directory.</p>
 </div>
 <div class="olist arabic">
 <div class="title">Procedure</div>
@@ -1939,7 +1939,7 @@ The Mirror Maker consumes messages from the source cluster and republishes those
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl run kafka-producer -ti --image=strimzi/kafka:0.11.0-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-producer.sh --broker-list <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em></code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl run kafka-producer -ti --image=strimzi/kafka:0.11.1-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-producer.sh --broker-list <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1947,7 +1947,7 @@ The Mirror Maker consumes messages from the source cluster and republishes those
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc run kafka-producer -ti --image=strimzi/kafka:0.11.0-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-producer.sh --broker-list <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em></code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc run kafka-producer -ti --image=strimzi/kafka:0.11.1-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-producer.sh --broker-list <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em></code></pre>
 </div>
 </div>
 </li>
@@ -1964,7 +1964,7 @@ The Mirror Maker consumes messages from the source cluster and republishes those
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl run kafka-consumer -ti --image=strimzi/kafka:0.11.0-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-consumer.sh --bootstrap-server <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em> --from-beginning</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl run kafka-consumer -ti --image=strimzi/kafka:0.11.1-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-consumer.sh --bootstrap-server <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em> --from-beginning</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1972,7 +1972,7 @@ The Mirror Maker consumes messages from the source cluster and republishes those
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc run kafka-consumer -ti --image=strimzi/kafka:0.11.0-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-consumer.sh --bootstrap-server <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em> --from-beginning</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc run kafka-consumer -ti --image=strimzi/kafka:0.11.1-kafka-2.1.0 --rm=true --restart=Never -- bin/kafka-console-consumer.sh --bootstrap-server <em>cluster-name</em>-kafka-bootstrap:9092 --topic <em>my-topic</em> --from-beginning</code></pre>
 </div>
 </div>
 </li>
@@ -3073,7 +3073,7 @@ Strimzi will not perform any validation that the requested hosts are available; 
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># ...
 listeners:
   external:
-    type: routes
+    type: route
     authentication:
       type: tls
     overrides:
@@ -3198,7 +3198,7 @@ Overriding the advertised host and ports is available for all types of external 
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># ...
 listeners:
   external:
-    type: routes
+    type: route
     authentication:
       type: tls
     overrides:
@@ -3226,7 +3226,7 @@ Adding the additional bootstrap address is available for all types of external l
 <pre class="highlightjs highlight"><code class="language-yaml hljs" data-lang="yaml"># ...
 listeners:
   external:
-    type: routes
+    type: route
     authentication:
       type: tls
     overrides:
@@ -7881,7 +7881,7 @@ If maintenance time windows are not configured for a cluster then it is possible
 <h5 id="con-maintenance-time-window-definition-deployment-configuration-kafka"><a class="link" href="#con-maintenance-time-window-definition-deployment-configuration-kafka">Maintenance time window definition</a></h5>
 <div class="paragraph">
 <p>You configure maintenance time windows by entering an array of strings in the <code>Kafka.spec.maintenanceTimeWindows</code> property.
-Each string is a <a href="http://www.quartz-scheduler.org/documentation/quartz-2.x/tutorials/crontrigger.html" target="_blank" rel="noopener">cron expression</a> interpreted as being in UTC (Coordinated Universal Time, which for practical purposes is the same as Greenwich Mean Time).</p>
+Each string is a <a href="http://www.quartz-scheduler.org/documentation/quartz-2.3.0/tutorials/tutorial-lesson-06.html" target="_blank" rel="noopener">cron expression</a> interpreted as being in UTC (Coordinated Universal Time, which for practical purposes is the same as Greenwich Mean Time).</p>
 </div>
 <div class="paragraph">
 <p>The following example configures a single maintenance time window that starts at midnight and ends at 01:59am (UTC), on Sundays, Mondays, Tuesdays, Wednesdays, and Thursdays:</p>
@@ -14155,7 +14155,7 @@ For example:</p>
 <p>You can use OpenShift <a href="https://docs.openshift.org/3.9/dev_guide/builds/index.html" target="_blank" rel="noopener">builds</a> and the  <a href="https://docs.openshift.org/3.9/creating_images/s2i.html#creating-images-s2i" target="_blank" rel="noopener">Source-to-Image (S2I)</a> framework to create new container images. An OpenShift build takes a builder image with S2I support, together with source code and binaries provided by the user, and uses them to build a new container image. Once built, container images are stored in OpenShift&#8217;s local container image repository and are available for use in deployments.</p>
 </div>
 <div class="paragraph">
-<p>A Kafka Connect builder image with S2I support is provided by Strimzi on the <a href="https://hub.docker.com/u/strimzi" target="_blank" rel="noopener">Docker Hub</a> as <code>strimzi/kafka-connect-s2i:0.11.0-kafka-2.1.0</code>. This S2I image takes your binaries (with plug-ins and connectors) and stores them in the <code>/tmp/kafka-plugins/s2i</code> directory. It creates a new Kafka Connect image from this directory, which can then be used with the Kafka Connect deployment. When started using the enhanced image, Kafka Connect loads any third-party plug-ins from the <code>/tmp/kafka-plugins/s2i</code> directory.</p>
+<p>A Kafka Connect builder image with S2I support is provided by Strimzi on the <a href="https://hub.docker.com/u/strimzi" target="_blank" rel="noopener">Docker Hub</a> as <code>strimzi/kafka-connect-s2i:0.11.1-kafka-2.1.0</code>. This S2I image takes your binaries (with plug-ins and connectors) and stores them in the <code>/tmp/kafka-plugins/s2i</code> directory. It creates a new Kafka Connect image from this directory, which can then be used with the Kafka Connect deployment. When started using the enhanced image, Kafka Connect loads any third-party plug-ins from the <code>/tmp/kafka-plugins/s2i</code> directory.</p>
 </div>
 <div class="olist arabic">
 <div class="title">Procedure</div>
@@ -18057,7 +18057,7 @@ spec:
     metadata:
       labels:
         name: strimzi-cluster-operator
-    spec:
+        strimzi.io/kind: cluster-operator
       # ...</code></pre>
 </div>
 </div>
@@ -21164,15 +21164,54 @@ When one or more of these versions differ, the Cluster Operator will require two
 <ol class="arabic">
 <li>
 <p>Consult the table below and determine whether the new Kafka version has a different log message format version than the previous version.</p>
-<div class="paragraph">
-<p>include::snip-kafka-versions.adoc[leveloffset=+1]</p>
+</li>
+</ol>
 </div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Kafka version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Interbroker protocol version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Log message format version</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Zookeeper version</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.4.13</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.4.13</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1.0</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2.1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3.4.13</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
-<p>If the log message format versions are the same proceed to the next step.
+<p>+
+If the log message format versions are the same proceed to the next step.
 Otherwise, ensure the <code>Kafka.spec.kafka.config</code> has the <code>log.message.format.version</code> configured to the default for the previous version.</p>
 </div>
 <div class="paragraph">
-<p>For example, if upgrading from 2.0.0:</p>
+<p>+
+For example, if upgrading from 2.0.0:</p>
+</div>
+<div class="paragraph">
+<p>+</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -21187,22 +21226,19 @@ spec:
       # ...</code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-You must format the value of <code>log.message.format.version</code> as a string to prevent it from being interpreted as a number.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>+
+NOTE: You must format the value of <code>log.message.format.version</code> as a string to prevent it from being interpreted as a number.</p>
 </div>
 <div class="paragraph">
-<p>If <code>log.message.format.version</code> is unset then set it and wait for the resulting rolling restart of the Kafka cluster to complete.</p>
+<p>+
+If <code>log.message.format.version</code> is unset then set it and wait for the resulting rolling restart of the Kafka cluster to complete.</p>
 </div>
-</li>
+<div class="paragraph">
+<p>+</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic" start="2">
 <li>
 <p>Change the <code>Kafka.spec.kafka.version</code> to specify the new version, but leave the <code>log.message.format.version</code> as the previous version.
 If the image to be used is different from the image for the given version of Kafka configured in the Cluster Operator&#8217;s <code>STRIMZI_KAFKA_IMAGES</code> then configure the <code>Kafka.spec.kafka.image</code> as well.</p>
@@ -21700,7 +21736,7 @@ If you require further support on configuration and running Prometheus or Grafan
 <h3 id="kafka_metrics_configuration"><a class="link" href="#kafka_metrics_configuration">C.1. Kafka Metrics Configuration</a></h3>
 <div class="paragraph">
 <p>Strimzi uses the <a href="https://github.com/prometheus/jmx_exporter">Prometheus JMX Exporter</a> to export JMX metrics from Kafka and ZooKeeper to a Prometheus HTTP metrics endpoint that is scraped by Prometheus server.
-The Grafana dashboard relies on the Kafka and ZooKeeper Prometheus JMX Exporter relabeling rules defined in the example <code>Kafka</code> resource configuration in <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/kafka/kafka-metrics.yaml"><code>kafka-metrics.yaml</code></a>.
+The Grafana dashboard relies on the Kafka and ZooKeeper Prometheus JMX Exporter relabeling rules defined in the example <code>Kafka</code> resource configuration in <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/kafka/kafka-metrics.yaml"><code>kafka-metrics.yaml</code></a>.
 Copy this configuration to your own <code>Kafka</code> resource definition, or run this example, in order to use the provided Grafana dashboards.</p>
 </div>
 <div class="sect3">
@@ -21710,7 +21746,7 @@ Copy this configuration to your own <code>Kafka</code> resource definition, or r
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/kafka/kafka-metrics.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/kafka/kafka-metrics.yaml</code></pre>
 </div>
 </div>
 </div>
@@ -21721,7 +21757,7 @@ Copy this configuration to your own <code>Kafka</code> resource definition, or r
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/kafka/kafka-metrics.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/kafka/kafka-metrics.yaml</code></pre>
 </div>
 </div>
 </div>
@@ -21729,7 +21765,7 @@ Copy this configuration to your own <code>Kafka</code> resource definition, or r
 <div class="sect2">
 <h3 id="prometheus"><a class="link" href="#prometheus">C.2. Prometheus</a></h3>
 <div class="paragraph">
-<p>The provided Prometheus <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/prometheus.yaml"><code>prometheus.yaml</code></a> YAML file describes all the resources required by Prometheus in order to effectively monitor a Strimzi Kafka &amp; ZooKeeper cluster.
+<p>The provided Prometheus <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/prometheus.yaml"><code>prometheus.yaml</code></a> YAML file describes all the resources required by Prometheus in order to effectively monitor a Strimzi Kafka &amp; ZooKeeper cluster.
 These resources lack important production configuration to run a healthy and highly available Prometheus server.
 They should only be used to demonstrate this Grafana dashboard example.</p>
 </div>
@@ -21760,7 +21796,7 @@ They should only be used to demonstrate this Grafana dashboard example.</p>
 </div>
 <div class="paragraph">
 <p>Prometheus also provides an alerting system through the <a href="https://prometheus.io/docs/alerting/alertmanager/">alert manager</a> component.
-In order to enable alerting, the provided <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alerting-rules.yaml"><code>alerting-rules.yaml</code></a> file describes a <code>ConfigMap</code> resource which defines sample alerting rules on Kafka and Zookeeper metrics.
+In order to enable alerting, the provided <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alerting-rules.yaml"><code>alerting-rules.yaml</code></a> file describes a <code>ConfigMap</code> resource which defines sample alerting rules on Kafka and Zookeeper metrics.
 When an alert condition is evaluated as true on the Prometheus server, it sends the alert data to the alert manager which then uses the configured notification methods to notify the user.</p>
 </div>
 <div class="paragraph">
@@ -21775,7 +21811,7 @@ If you are using a different namespace, download the resource file and update it
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/prometheus.yaml | sed -e 's/namespace: .*/namespace: _my-namespace_/;s/regex: myproject/regex: _my-namespace_/' &gt; prometheus.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/prometheus.yaml | sed -e 's/namespace: .*/namespace: _my-namespace_/;s/regex: myproject/regex: _my-namespace_/' &gt; prometheus.yaml</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -21783,7 +21819,7 @@ If you are using a different namespace, download the resource file and update it
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alerting-rules.yaml &gt; alerting-rules.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alerting-rules.yaml &gt; alerting-rules.yaml</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -21805,7 +21841,7 @@ If you are using a different namespace, download the resource file and update it
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/prometheus.yaml | sed -e 's/namespace: .*/namespace: _my-namespace_/;s/regex: myproject/regex: _my-namespace_/' &gt; prometheus.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/prometheus.yaml | sed -e 's/namespace: .*/namespace: _my-namespace_/;s/regex: myproject/regex: _my-namespace_/' &gt; prometheus.yaml</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -21813,7 +21849,7 @@ If you are using a different namespace, download the resource file and update it
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alerting-rules.yaml &gt; alerting-rules.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">curl -s https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alerting-rules.yaml &gt; alerting-rules.yaml</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -21839,7 +21875,7 @@ kubectl apply -f prometheus.yaml</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/grafana/grafana.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/grafana/grafana.yaml</code></pre>
 </div>
 </div>
 </div>
@@ -21850,7 +21886,7 @@ kubectl apply -f prometheus.yaml</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/grafana/grafana.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/grafana/grafana.yaml</code></pre>
 </div>
 </div>
 </div>
@@ -21858,7 +21894,7 @@ kubectl apply -f prometheus.yaml</code></pre>
 <div class="sect2">
 <h3 id="grafana_dashboard"><a class="link" href="#grafana_dashboard">C.4. Grafana dashboard</a></h3>
 <div class="paragraph">
-<p>As an example, and in order to visualize the exported metrics in Grafana, two sample dashboards are provided <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.0/metrics/examples/grafana/strimzi-kafka.json"><code>strimzi-kafka.json</code></a> and <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.0/metrics/examples/grafana/strimzi-zookeeper.json"><code>strimzi-zookeeper.json</code></a>.
+<p>As an example, and in order to visualize the exported metrics in Grafana, two sample dashboards are provided <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.1/metrics/examples/grafana/strimzi-kafka.json"><code>strimzi-kafka.json</code></a> and <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.1/metrics/examples/grafana/strimzi-zookeeper.json"><code>strimzi-zookeeper.json</code></a>.
 These dashboards represent a good starting point for key metrics to monitor Kafka and ZooKeeper clusters, but depending on your infrastructure you may need to update or add to them.
 Please note that they are not representative of all the metrics available.
 No alerting rules are defined.</p>
@@ -21905,7 +21941,7 @@ For accessing the dashboard, you can use the <code>port-forward</code> command f
 </div>
 </li>
 <li>
-<p>From the top left menu, click on "Dashboards" and then "Import" to open the "Import Dashboard" window where the provided <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.0/metrics/examples/grafana/strimzi-kafka.json"><code>strimzi-kafka.json</code></a> and <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.0/metrics/examples/grafana/strimzi-zookeeper.json"><code>strimzi-zookeeper.json</code></a> files can be imported or their content pasted.</p>
+<p>From the top left menu, click on "Dashboards" and then "Import" to open the "Import Dashboard" window where the provided <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.1/metrics/examples/grafana/strimzi-kafka.json"><code>strimzi-kafka.json</code></a> and <a href="https://github.com/strimzi/strimzi-kafka-operator/blob/0.11.1/metrics/examples/grafana/strimzi-zookeeper.json"><code>strimzi-zookeeper.json</code></a> files can be imported or their content pasted.</p>
 <div class="imageblock">
 <div class="content">
 <img src="images/grafana_import_dashboard.png" alt="Add Grafana dashboard">
@@ -21988,7 +22024,7 @@ When an alert condition is evaluated as true, Prometheus sends alert data to the
 Notifications can be sent via methods such as email, Slack, PagerDuty and HipChat</p>
 </div>
 <div class="paragraph">
-<p>The provided Prometheus <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alertmanager.yaml"><code>alertmanager.yaml</code></a> YAML file describes all the resources required for deploying and configuring the alert manager.</p>
+<p>The provided Prometheus <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alertmanager.yaml"><code>alertmanager.yaml</code></a> YAML file describes all the resources required for deploying and configuring the alert manager.</p>
 </div>
 <div class="paragraph">
 <p>The following resources are defined:</p>
@@ -22027,7 +22063,7 @@ Before deploying the alert manager it is needed to update the following paramete
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alertmanager.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">oc apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alertmanager.yaml</code></pre>
 </div>
 </div>
 </div>
@@ -22038,14 +22074,14 @@ Before deploying the alert manager it is needed to update the following paramete
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alertmanager.yaml</code></pre>
+<pre class="highlightjs highlight"><code class="language-shell hljs" data-lang="shell">kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alertmanager.yaml</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="alerts_examples"><a class="link" href="#alerts_examples">C.6.3. Alerts examples</a></h4>
 <div class="paragraph">
-<p>The provided <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.0/metrics/examples/prometheus/alerting-rules.yaml"><code>alerting-rules.yaml</code></a> YAML file provides the following sample alerting rules on Kafka and Zookeeper metrics.</p>
+<p>The provided <a href="https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/0.11.1/metrics/examples/prometheus/alerting-rules.yaml"><code>alerting-rules.yaml</code></a> YAML file provides the following sample alerting rules on Kafka and Zookeeper metrics.</p>
 </div>
 <div class="paragraph">
 <p>Kafka alerts are:</p>
