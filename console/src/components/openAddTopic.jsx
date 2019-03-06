@@ -6,17 +6,20 @@ import TopicCreating from './topicCreating';
 import TopicCreated from './topicCreated';
 
 class OpenAddTopic extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isModalOpen: false,
+      isFormOpen: true,
+      isCreatingOpen: false,
+      isCreatedOpen: false
+    };
+  }
   static propTypes = {
     onAction: PropTypes.func.isRequired,
     service: PropTypes.object.isRequired
   };
 
-  state = {
-    isModalOpen: false,
-    isFormOpen: true,
-    isCreatingOpen: false,
-    isCreatedOpen: false
-  };
   handleModalToggle = () => {
     this.setState(({ isModalOpen }) => ({
       isModalOpen: !isModalOpen,
@@ -32,6 +35,8 @@ class OpenAddTopic extends React.Component {
       isFormOpen: false,
       isCreatingOpen: true
     }));
+    console.log('----- submitted add topic form with -----');
+    console.log(formElements);
     // for the demo only, pretend that the topic creation takes a second
     // so we can see the spinning cogs
     setTimeout(() => {

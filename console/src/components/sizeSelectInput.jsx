@@ -5,6 +5,18 @@ import PropTypes from 'prop-types';
 // import { Select, SelectOption, SelectVariant } from '@patternfly/react-core';
 
 class SizeSelectInput extends React.Component {
+  constructor(props) {
+    super(props);
+    this.options = [
+      { value: 'KB', disabled: false },
+      { value: 'MB', disabled: false },
+      { value: 'GB', disabled: false },
+      { value: 'TB', disabled: false },
+      { value: 'PB', disabled: false },
+      { value: 'ZB', disabled: false }
+    ];
+    this.default = 'MB';
+  }
   static propTypes = {
     onSelect: PropTypes.func.isRequired,
     className: PropTypes.string
@@ -12,15 +24,6 @@ class SizeSelectInput extends React.Component {
   static defaultProps = {
     className: ''
   };
-  options = [
-    { value: 'KB', disabled: false },
-    { value: 'MB', disabled: false },
-    { value: 'GB', disabled: false },
-    { value: 'TB', disabled: false },
-    { value: 'PB', disabled: false },
-    { value: 'ZB', disabled: false }
-  ];
-  default = 'MB';
 
   onSelect = event => {
     this.props.onSelect(event.target.value);

@@ -19,15 +19,19 @@ import PropTypes from 'prop-types';
 import OpenAddTopic from './openAddTopic';
 
 class TopicsToolbar extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      isDropDownOpen: false,
+      isKebabOpen: false,
+      searchValue: ''
+    };
+  }
+
   static propTypes = {
     onAction: PropTypes.func.isRequired,
     service: PropTypes.object.isRequired
-  };
-
-  state = {
-    isDropDownOpen: false,
-    isKebabOpen: false,
-    searchValue: ''
   };
 
   handleTextInputChange = value => {
@@ -69,7 +73,7 @@ class TopicsToolbar extends React.Component {
           onChange={this.handleTextInputChange}
           aria-label="search text input"
         />
-        <span className="pficon pf-icon-ok input-search" />
+        <span className="fa fa-search input-search" />
       </React.Fragment>
     );
   };

@@ -1,8 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class AgeSelectInput extends React.Component {
   constructor(props) {
     super(props);
+
     this.options = [
       { value: 'days', disabled: false },
       { value: 'weeks', disabled: false },
@@ -10,16 +12,13 @@ class AgeSelectInput extends React.Component {
       { value: 'years', disabled: false }
     ];
     this.default = 'days';
-
-    this.state = {
-      isExpanded: false,
-    };
   }
 
-  onSelect = (event) => {
-    this.setState({
-      isExpanded: false
-    });
+  static propTypes = {
+    onSelect: PropTypes.func.isRequired
+  };
+
+  onSelect = event => {
     this.props.onSelect(event.target.value);
   };
 
@@ -39,12 +38,9 @@ class AgeSelectInput extends React.Component {
           onChange={this.onSelect}
         >
           {this.options.map((option, index) => (
-            <option
-              disabled={option.disabled}
-              label=''
-              value={option.value}
-              key={index}
-            >{option.value}</option>
+            <option disabled={option.disabled} label="" value={option.value} key={index}>
+              {option.value}
+            </option>
           ))}
         </select>
       </div>

@@ -31,7 +31,7 @@ class TopicDetailsTable extends React.Component {
           title: 'Out of sync replicas',
           props: { className: 'pf-u-text-align-center details-dot details-outsync' },
           cellFormatters: [formatSyncArray, unalignColumn],
-          transforms: [cellWidth(10)]
+          transforms: [cellWidth(20)]
         }
       ],
       rows: []
@@ -43,16 +43,23 @@ class TopicDetailsTable extends React.Component {
 
   fetchDetails(props) {
     this.props.service.getTopicDetails(props.data).then(details => {
-      let { rows } = this.state;
       const { columns } = this.state;
-      rows = [];
+      const rows = [];
       let replicaCount = 0;
       let isrCount = 0;
       details.partitions.forEach(partition => {
+        // remove the broker from the lists (assumed to always be the 1st one in the list)
+        partition.replicas.splice(0, 1);
+        partition.isr.splice(0, 1);
+
+        // accumulate the counts for the table header
         replicaCount += partition.replicas.length;
         isrCount += partition.isr.length;
+
         // get the list of out-of-sync replicas
         const osr = partition.replicas.filter(r => partition.isr.indexOf(r) === -1);
+
+        // add a details row
         rows.push([partition.id, partition.leader, partition.isr, osr]);
       });
       // update the isr column title

@@ -4,12 +4,15 @@ import { Button } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 
 class TopicModalTitle extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
   static propTypes = {
     title: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired
   };
-
-  state = {};
 
   render() {
     return (

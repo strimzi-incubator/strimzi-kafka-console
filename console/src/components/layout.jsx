@@ -8,7 +8,6 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownItem,
-  KebabToggle,
   Page,
   PageHeader,
   PageSection,
@@ -21,7 +20,6 @@ import {
   ToolbarItem
 } from '@patternfly/react-core';
 import accessibleStyles from '@patternfly/patternfly/utilities/Accessibility/accessibility.css';
-import spacingStyles from '@patternfly/patternfly/utilities/Spacing/spacing.css';
 import { css } from '@patternfly/react-styles';
 import { BellIcon, CogIcon, UserSecIcon } from '@patternfly/react-icons';
 // import avatarImg from './img_avatar.svg';
@@ -62,16 +60,8 @@ class PageLayoutManualNav extends React.Component {
   };
 
   render() {
-    const { isDropdownOpen, isKebabDropdownOpen } = this.state;
+    const { isDropdownOpen } = this.state;
 
-    const kebabDropdownItems = [
-      <DropdownItem>
-        <BellIcon /> Notifications
-      </DropdownItem>,
-      <DropdownItem>
-        <CogIcon /> Settings
-      </DropdownItem>
-    ];
     const userDropdownItems = [
       <DropdownItem>Logout</DropdownItem>,
       <DropdownItem component="button">Donate</DropdownItem>,
@@ -92,16 +82,6 @@ class PageLayoutManualNav extends React.Component {
           </ToolbarItem>
         </ToolbarGroup>
         <ToolbarGroup>
-          <ToolbarItem className={css(accessibleStyles.hiddenOnLg, spacingStyles.mr_0)}>
-            <Dropdown
-              isPlain
-              position="right"
-              onSelect={this.onKebabDropdownSelect}
-              toggle={<KebabToggle onToggle={this.onKebabDropdownToggle} />}
-              isOpen={isKebabDropdownOpen}
-              dropdownItems={kebabDropdownItems}
-            />
-          </ToolbarItem>
           <ToolbarItem className={css(accessibleStyles.screenReader, accessibleStyles.visibleOnMd)}>
             <Dropdown
               isPlain
