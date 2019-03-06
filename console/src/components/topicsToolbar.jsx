@@ -119,7 +119,7 @@ class TopicsToolbar extends React.Component {
   render() {
     return (
       <Toolbar className={css(flexStyles.justifyContentSpaceBetween, spacingStyles.mxXl, spacingStyles.myMd)}>
-        <ToolbarGroup>
+        <ToolbarGroup className="topics-toolbar-filter">
           <ToolbarItem className={css(spacingStyles.mrXl)}>{this.buildSearchBox()}</ToolbarItem>
           <ToolbarItem>
             <Button variant="plain" aria-label="Sort A-Z">

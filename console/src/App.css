@@ -344,3 +344,15 @@ tbody.pf-m-expanded td[data-label="Partitions"] {
   padding-top: 0.2em;
   margin-left: 1em;
 }
+
+.topics-toolbar-filter {
+  padding-left: 1em;
+}
+
+.pf-c-table tr > :first-child {
+  padding: 0;
+}
+
+form.add-topic-form .topics-policy-title {
+  font-size: 0.9rem;
+}

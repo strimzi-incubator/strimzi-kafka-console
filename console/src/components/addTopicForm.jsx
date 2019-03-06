@@ -11,6 +11,7 @@ import {
   TextContent,
   Text,
   TextVariants,
+  Title,
   Split,
   SplitItem
 } from '@patternfly/react-core';
@@ -32,6 +33,7 @@ class AddTopicForm extends React.Component {
       ageBased: false,
       ageUnit: 'days',
       ageValue: '2',
+      plural: true,
       storageBased: false,
       storageUnit: 'MB',
       storageValue: '512',
@@ -92,7 +94,8 @@ class AddTopicForm extends React.Component {
   };
 
   handleAgeChange = ageValue => {
-    this.setState({ ageValue });
+    const plural = ageValue !== '1';
+    this.setState({ ageValue, plural });
   };
 
   handleSizeChange = storageValue => {
@@ -174,7 +177,8 @@ class AddTopicForm extends React.Component {
     }
     // add any age based policy data to the body
     if (this.state.ageBased) {
-      body.config['retention.ms'] = AgeSelectInput.convertToMS(this.state.ageUnit, this.state.ageValue);
+      const ms = AgeSelectInput.convertToMS(this.state.ageUnit, this.state.ageValue);
+      body.config['retention.ms'] = ms;
     }
     // add any storage policy data to the body
     if (this.state.storageBased) {
@@ -316,11 +320,9 @@ class AddTopicForm extends React.Component {
               <TextContent>
                 <Text component={TextVariants.h2}>Data retention policy</Text>
               </TextContent>
-              <TextContent>
-                <Text component={TextVariants.small}>
-                  Messages are deleted after one week by default if no policies are set.
-                </Text>
-              </TextContent>
+              <Title className="topics-policy-title" size="md">
+                Messages are deleted after one week by default if no policies are set.
+              </Title>
               <FormGroup fieldId="agePolicy" className="topic-group">
                 <Checkbox
                   label="Based on age"
@@ -350,7 +352,7 @@ class AddTopicForm extends React.Component {
                   </FormGroup>
                 </div>
                 <div className="group-wrapper">
-                  <AgeSelectInput onSelect={this.handleAgeUnitChange} />
+                  <AgeSelectInput plural={this.state.plural} onSelect={this.handleAgeUnitChange} />
                 </div>
               </div>
               <FormGroup fieldId="storagePolicy" className="topic-group">

@@ -8,18 +8,19 @@ class AgeSelectInput extends React.Component {
     this.default = 'days';
   }
   static options = {
-    msecs: 1,
-    seconds: 1000,
-    minutes: 60 * 1000,
-    hours: 60 * 60 * 1000,
-    days: 24 * 60 * 60 * 1000,
-    weeks: 7 * 24 * 60 * 60 * 1000,
-    months: 30 * 7 * 24 * 60 * 60 * 1000,
-    years: 52 * 7 * 24 * 60 * 60 * 60 * 1000
+    msec: 1,
+    second: 1000,
+    minute: 60 * 1000,
+    hour: 60 * 60 * 1000,
+    day: 24 * 60 * 60 * 1000,
+    week: 7 * 24 * 60 * 60 * 1000,
+    month: 30 * 7 * 24 * 60 * 60 * 1000,
+    year: 52 * 7 * 24 * 60 * 60 * 60 * 1000
   };
 
   static propTypes = {
-    onSelect: PropTypes.func.isRequired
+    onSelect: PropTypes.func.isRequired,
+    plural: PropTypes.bool.isRequired
   };
 
   static convertToMS = (unit, value) => AgeSelectInput.options[unit] * value;
@@ -31,14 +32,16 @@ class AgeSelectInput extends React.Component {
   options = () => {
     const opts = AgeSelectInput.options;
     // options sorted by age
-    const ordered = Object.keys(opts).sort((a, b) => {
+    const keys = Object.keys(opts);
+    // .map(key => `${key}${this.props.plural ? 's' : ''}`);
+    const ordered = keys.sort((a, b) => {
       if (opts[a] < opts[b]) return -1;
       if (opts[b] < opts[a]) return 1;
       return 0;
     });
     return ordered.map((unit, index) => (
       <option label="" value={unit} key={`age-${index}`}>
-        {unit}
+        {`${unit}${this.props.plural ? 's' : ''}`}
       </option>
     ));
   };

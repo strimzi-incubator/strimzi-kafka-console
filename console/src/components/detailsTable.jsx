@@ -76,7 +76,13 @@ class TopicDetailsTable extends React.Component {
     const { columns, rows } = this.state;
 
     return (
-      <Table aria-label="Topics table" variant={TableVariant.compact} cells={columns} rows={rows}>
+      <Table
+        className="topics-details-table"
+        aria-label="Topics table"
+        variant={TableVariant.compact}
+        cells={columns}
+        rows={rows}
+      >
         <TableHeader />
         <TableBody />
       </Table>
