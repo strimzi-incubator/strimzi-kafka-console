@@ -55,7 +55,8 @@ class AddTopicForm extends React.Component {
     // get the custom topics keys once and pass them to each select control
     this.props.service.getJson('customTopicConfigs.json').then(
       data => {
-        this.customTopicConfigs = data.customTopicConfigs;
+        const separate = ['retention.ms', 'retention.bytes', 'cleanup.policy'];
+        this.customTopicConfigs = data.customTopicConfigs.filter(c => !separate.includes(c.name));
       },
       e => {
         console.log('unable to load custom config list');
@@ -111,7 +112,7 @@ class AddTopicForm extends React.Component {
   // add a new custom configuration to the list
   handleAddCustomConfiguration = () => {
     const { customized } = this.state;
-    customized.push({ name: 'cleanup.policy', value: '' });
+    customized.push({ name: 'compression.type', value: '' });
     const isCustomValid = this.getCustomValidity(customized);
     this.setState({ customized, isCustomValid });
   };
@@ -162,26 +163,25 @@ class AddTopicForm extends React.Component {
     const body = {
       name: this.state.name,
       partitions: this.state.partitions,
-      replicas: this.state.replicas
+      replicas: this.state.replicas,
+      config: {}
     };
     // add the customized key/values to the POST body
     if (this.state.customized.length > 0) {
-      body.config = {};
       this.state.customized.forEach(c => {
         body.config[c.name] = c.value;
       });
     }
     // add any age based policy data to the body
     if (this.state.ageBased) {
-      body.policy = {};
-      body.policy[this.state.ageUnit] = this.state.ageValue;
+      body.config['retention.ms'] = AgeSelectInput.convertToMS(this.state.ageUnit, this.state.ageValue);
     }
     // add any storage policy data to the body
     if (this.state.storageBased) {
-      if (!('policy' in body)) {
-        body.policy = {};
-        body.policy[this.state.storageUnit] = this.state.storageValue;
-      }
+      body.config['retention.bytes'] = SizeSelectInput.convertToBytes(this.state.storageUnit, this.state.storageValue);
+    }
+    if (this.state.compacted) {
+      body.config['cleanup.policy'] = 'compact';
     }
 
     this.props.onSubmit(body);

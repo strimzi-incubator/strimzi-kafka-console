@@ -5,21 +5,42 @@ class AgeSelectInput extends React.Component {
   constructor(props) {
     super(props);
 
-    this.options = [
-      { value: 'days', disabled: false },
-      { value: 'weeks', disabled: false },
-      { value: 'months', disabled: false },
-      { value: 'years', disabled: false }
-    ];
     this.default = 'days';
   }
+  static options = {
+    msecs: 1,
+    seconds: 1000,
+    minutes: 60 * 1000,
+    hours: 60 * 60 * 1000,
+    days: 24 * 60 * 60 * 1000,
+    weeks: 7 * 24 * 60 * 60 * 1000,
+    months: 30 * 7 * 24 * 60 * 60 * 1000,
+    years: 52 * 7 * 24 * 60 * 60 * 60 * 1000
+  };
 
   static propTypes = {
     onSelect: PropTypes.func.isRequired
   };
 
+  static convertToMS = (unit, value) => AgeSelectInput.options[unit] * value;
+
   onSelect = event => {
     this.props.onSelect(event.target.value);
+  };
+
+  options = () => {
+    const opts = AgeSelectInput.options;
+    // options sorted by age
+    const ordered = Object.keys(opts).sort((a, b) => {
+      if (opts[a] < opts[b]) return -1;
+      if (opts[b] < opts[a]) return 1;
+      return 0;
+    });
+    return ordered.map((unit, index) => (
+      <option label="" value={unit} key={`age-${index}`}>
+        {unit}
+      </option>
+    ));
   };
 
   render() {
@@ -37,11 +58,7 @@ class AgeSelectInput extends React.Component {
           defaultValue={this.default}
           onChange={this.onSelect}
         >
-          {this.options.map((option, index) => (
-            <option disabled={option.disabled} label="" value={option.value} key={index}>
-              {option.value}
-            </option>
-          ))}
+          {this.options()}
         </select>
       </div>
     );

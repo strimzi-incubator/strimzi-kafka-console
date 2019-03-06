@@ -7,22 +7,24 @@ import PropTypes from 'prop-types';
 class SizeSelectInput extends React.Component {
   constructor(props) {
     super(props);
-    this.options = [
-      { value: 'KB', disabled: false },
-      { value: 'MB', disabled: false },
-      { value: 'GB', disabled: false },
-      { value: 'TB', disabled: false },
-      { value: 'PB', disabled: false },
-      { value: 'ZB', disabled: false }
-    ];
     this.default = 'MB';
   }
+  static options = [
+    { value: 'Bytes', mult: 1 },
+    { value: 'KB', mult: 1024 },
+    { value: 'MB', mult: 1024 * 1024 },
+    { value: 'GB', mult: 1024 * 1024 * 1024 }
+  ];
   static propTypes = {
     onSelect: PropTypes.func.isRequired,
     className: PropTypes.string
   };
   static defaultProps = {
     className: ''
+  };
+  static convertToBytes = (units, value) => {
+    const opt = SizeSelectInput.options.filter(o => o.value === units)[0];
+    return opt.mult * value;
   };
 
   onSelect = event => {
@@ -44,7 +46,7 @@ class SizeSelectInput extends React.Component {
           defaultValue={this.default}
           onChange={this.onSelect}
         >
-          {this.options.map((option, index) => (
+          {SizeSelectInput.options.map((option, index) => (
             <option disabled={option.disabled} label="" value={option.value} key={index}>
               {option.value}
             </option>

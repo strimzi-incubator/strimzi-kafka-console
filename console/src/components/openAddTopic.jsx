@@ -36,7 +36,7 @@ class OpenAddTopic extends React.Component {
       isCreatingOpen: true
     }));
     console.log('----- submitted add topic form with -----');
-    console.log(formElements);
+    console.log(JSON.stringify(formElements, null, 2));
     // for the demo only, pretend that the topic creation takes a second
     // so we can see the spinning cogs
     setTimeout(() => {
