@@ -30,18 +30,22 @@ The Kafka topics are created via `KafkaTopic` resources running the following sc
 
     ./03-openshift-deploy-topics.sh
 
-## Deploy the Console Server
+## Deploy the Console Server and the Web Console
 
 The Console Server exposes an HTTP REST API for the Web UI for handling topics in the cluster.
 It has to be deployed in the same namespece (env var `STRIMZI_NAMESPACE`) as the Cluster Operator and the Kafka cluster.
 
     ./04-openshift-deploy-console-server.sh
 
+Related to the Console Server, there is the Web Console application.
+
+    ./05-openshift-deploy-console.sh
+
 ## Deploy Prometheus and Grafana for monitoring
 
 In order to monitor the Kafka cluster and the Zookeeper nodes, Prometheus and Grafana can be installed running the following script.
 
-    ./05-openshift-deploy-monitoring.sh
+    ./06-openshift-deploy-monitoring.sh
 
 The script push Kafka and Zookeeper dashboards to Grafan through the API as well.
 

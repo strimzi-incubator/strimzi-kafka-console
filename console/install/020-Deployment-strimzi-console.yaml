@@ -11,7 +11,6 @@ spec:
       labels:
         name: strimzi-console
     spec:
-      serviceAccountName: strimzi-console
       containers:
       - name: strimzi-console
         image: quay.io/redhatdemo/console-pages:latest

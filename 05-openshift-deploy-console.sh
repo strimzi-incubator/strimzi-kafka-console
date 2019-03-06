@@ -7,3 +7,7 @@ sed -i "s/my-cluster/$CLUSTER/" console/install/020-Deployment-strimzi-console.y
 
 oc apply -f console/install -n $NAMESPACE
 oc expose service/strimzi-console -n $NAMESPACE
+
+echo "Waiting for console to be ready..."
+oc rollout status deployment/strimzi-console -w
+echo "...console ready"
