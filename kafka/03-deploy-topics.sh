@@ -7,4 +7,4 @@ sed "s/my-cluster/$CLUSTER/" cluster/kafka-topics.yaml > cluster/$CLUSTER-kafka-
 
 oc apply -f cluster/$CLUSTER-kafka-topics.yaml -n $NAMESPACE
 
-rm $CLUSTER-kafka-topics.yaml
+rm cluster/$CLUSTER-kafka-topics.yaml
