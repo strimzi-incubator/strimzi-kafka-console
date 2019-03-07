@@ -99,6 +99,15 @@ class TopicsService {
     });
   }
 
+  getJson(url) {
+    return new Promise((resolve, reject) => {
+      fetch(`${this.url}/${url}`)
+        .then(response => response.json())
+        .then(data => resolve(data))
+        .catch(e => reject(e));
+    });
+  }
+
   getTopicDetails(name) {
     return new Promise((resolve, reject) => {
       if (window.location.port === '3001') {

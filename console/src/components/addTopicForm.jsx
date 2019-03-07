@@ -11,54 +11,80 @@ import {
   TextContent,
   Text,
   TextVariants,
+  Title,
   Split,
   SplitItem
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
+import PropTypes from 'prop-types';
 import AgeSelectInput from './ageSelectInput';
 import SizeSelectInput from './sizeSelectInput';
 import CustomKeyInput from './customKeyInput';
 import TopicModalTitle from './topicModalTitle';
 
 class AddTopicForm extends React.Component {
-  state = {
-    name: '',
-    partitions: 1,
-    replicas: 1,
-    isAdvancedOpen: false,
-    ageBased: false,
-    ageUnit: 'days',
-    ageValue: '2',
-    storageBased: false,
-    storageUnit: 'MB',
-    storageValue: '512',
-    compacted: false,
-    customized: [],
-    isNameValid: false,
-    isCustomValid: true
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      name: '',
+      partitions: 1,
+      replicas: 1,
+      ageBased: false,
+      ageUnit: 'days',
+      ageValue: '2',
+      plural: true,
+      storageBased: false,
+      storageUnit: 'MB',
+      storageValue: '512',
+      compacted: false,
+      customized: [],
+      isNameValid: false,
+      isCustomValid: true
+    };
+
+    this.customTopicConfigs = [];
+  }
+
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired,
+    service: PropTypes.object.isRequired,
+    isOpen: PropTypes.bool.isRequired
   };
+
+  componentDidMount() {
+    // get the custom topics keys once and pass them to each select control
+    this.props.service.getJson('customTopicConfigs.json').then(
+      data => {
+        const separate = ['retention.ms', 'retention.bytes', 'cleanup.policy'];
+        this.customTopicConfigs = data.customTopicConfigs.filter(c => !separate.includes(c.name));
+      },
+      e => {
+        console.log('unable to load custom config list');
+        console.log(e);
+      }
+    );
+  }
 
   isFormValid = () => {
     const { isNameValid, isCustomValid } = this.state;
     return isNameValid && isCustomValid;
-  }
+  };
+
   handleTopicNameChange = name => {
     name = name.replace(' ', '-');
     this.setState({ name });
-    const isNameValid = this.props.service.isUniqueValidName(name)
+    const isNameValid = this.props.service.isUniqueValidName(name);
     this.setState({ isNameValid });
   };
 
-  handleTopicNameKey = key => {
+  handleTopicNameKeyUp = key => {
     if (key.keyCode === 13 && this.isFormValid()) {
-      const request = {
-        name: this.state.name,
-        partitions: this.state.partitions,
-        replicas: this.state.replicas
-      };
-      this.props.onSubmit(request);
+      this.handleFormSubmit();
     }
-  }
+  };
+
   handlePartitionsChange = partitions => {
     this.setState({ partitions });
   };
@@ -68,74 +94,102 @@ class AddTopicForm extends React.Component {
   };
 
   handleAgeChange = ageValue => {
-    this.setState({ ageValue });
+    const plural = ageValue !== '1';
+    this.setState({ ageValue, plural });
   };
 
   handleSizeChange = storageValue => {
     this.setState({ storageValue });
   };
 
-  handlePolicyChange = checked => {
-    const target = window.event.target;
+  handlePolicyChange = (checked, event) => {
+    const { target } = event;
     const value = target.type === 'checkbox' ? target.checked : target.value;
-    const name = target.name;
+    const { name } = target;
     this.setState({ [name]: value });
   };
 
   // custom list is not valid if there are any empty values
-  getCustomValidity = (customized) => {
-    return customized.every(c => c.value !== '');
-  }
+  getCustomValidity = customized => customized.every(c => c.value !== '');
+
   // add a new custom configuration to the list
   handleAddCustomConfiguration = () => {
-    let { customized } = this.state;
-    customized.push({ name: 'cleanup.policy', value: '' })
-    let isCustomValid = this.getCustomValidity(customized);
-    this.setState({ customized: customized, isCustomValid: isCustomValid });
-  }
+    const { customized } = this.state;
+    customized.push({ name: 'compression.type', value: '' });
+    const isCustomValid = this.getCustomValidity(customized);
+    this.setState({ customized, isCustomValid });
+  };
+
   // user has chosen a different custom key
-  handleCustomKeyChange = (custom, i, newVal) => {
-    let customized = this.state.customized;
-    customized[i].name = newVal;
+  handleCustomKeyChange = index => value => {
+    const { customized } = this.state;
+    customized[index].name = value;
     this.setState({ customized });
-  }
+  };
+
   // user has changed the value for a custom key
-  handleCustomValueChange = (custom, newVal) => {
-    let customized = this.state.customized;
-    customized.forEach(function (c) {
+  handleCustomValueChange = custom => value => {
+    const { customized } = this.state;
+    customized.forEach(c => {
       if (c.name === custom.name) {
-        c.value = newVal;
+        c.value = value;
       }
-    })
-    let isCustomValid = this.getCustomValidity(customized);
-    this.setState({ customized: customized, isCustomValid: isCustomValid });
-  }
+    });
+    const isCustomValid = this.getCustomValidity(customized);
+    this.setState({ customized, isCustomValid });
+  };
+
   // user had deleted a custom configuration
-  handleCustomDelete = (custom) => {
-    let customized = this.state.customized;
-    let i = customized.findIndex(c => c.name === custom.name)
+  handleCustomDelete = custom => () => {
+    const { customized } = this.state;
+    const i = customized.findIndex(c => c.name === custom.name);
     if (i >= 0) {
       customized.splice(i, 1);
     }
-    let isCustomValid = this.getCustomValidity(customized);
-    this.setState({ customized: customized, isCustomValid: isCustomValid });
-  }
+    const isCustomValid = this.getCustomValidity(customized);
+    this.setState({ customized, isCustomValid });
+  };
 
-  handleStorageUnitChange = (size) => {
-    let storageUnit = this.state.storageUnit;
+  handleStorageUnitChange = size => {
+    let { storageUnit } = this.state.storageUnit;
     storageUnit = size;
-    this.setState({ storageUnit })
-  }
+    this.setState({ storageUnit });
+  };
 
-  handleAgeUnitChange = (unit) => {
-    let ageUnit = this.state.ageUnit;
+  handleAgeUnitChange = unit => {
+    let { ageUnit } = this.state.ageUnit;
     ageUnit = unit;
     this.setState({ ageUnit });
-  }
+  };
 
   handleFormSubmit = () => {
-    this.handleTopicNameKey({ keyCode: 13 })
-  }
+    const body = {
+      name: this.state.name,
+      partitions: this.state.partitions,
+      replicas: this.state.replicas,
+      config: {}
+    };
+    // add the customized key/values to the POST body
+    if (this.state.customized.length > 0) {
+      this.state.customized.forEach(c => {
+        body.config[c.name] = c.value;
+      });
+    }
+    // add any age based policy data to the body
+    if (this.state.ageBased) {
+      const ms = AgeSelectInput.convertToMS(this.state.ageUnit, this.state.ageValue);
+      body.config['retention.ms'] = ms;
+    }
+    // add any storage policy data to the body
+    if (this.state.storageBased) {
+      body.config['retention.bytes'] = SizeSelectInput.convertToBytes(this.state.storageUnit, this.state.storageValue);
+    }
+    if (this.state.compacted) {
+      body.config['cleanup.policy'] = 'compact';
+    }
+
+    this.props.onSubmit(body);
+  };
 
   renderCustomizedListHeader() {
     if (this.state.customized.length > 0) {
@@ -147,14 +201,22 @@ class AddTopicForm extends React.Component {
           <div className="custom-wrapper custom-value">
             <span>Value</span>
           </div>
-        </React.Fragment>)
+        </React.Fragment>
+      );
     }
+    return <React.Fragment />;
   }
+
   renderCustomizedList() {
     return this.state.customized.map((custom, index) => (
       <div className="custom-list-item" key={`fragment-${index}`}>
         <div className="custom-wrapper custom-key">
-          <CustomKeyInput onSelect={this.handleCustomKeyChange.bind(this, custom, index)} initialName={custom.name}></CustomKeyInput>
+          <CustomKeyInput
+            onSelect={this.handleCustomKeyChange(index)}
+            service={this.props.service}
+            initialName={custom.name}
+            customTopicConfigs={this.customTopicConfigs}
+          />
         </div>
         <div className="custom-wrapper custom-value">
           <TextInput
@@ -163,16 +225,16 @@ class AddTopicForm extends React.Component {
             name="simple-form-name"
             aria-describedby="simple-form-name-helper"
             value={custom.value}
-            onChange={this.handleCustomValueChange.bind(this, custom)}
+            onChange={this.handleCustomValueChange(custom)}
           />
         </div>
         <div className="custom-wrapper custom-delete">
-          <Button variant="plain" aria-label="Action" onClick={this.handleCustomDelete.bind(this, custom)}>
+          <Button variant="plain" aria-label="Action" onClick={this.handleCustomDelete(custom)}>
             <TimesIcon />
           </Button>
         </div>
       </div>
-    ))
+    ));
   }
 
   render() {
@@ -180,17 +242,17 @@ class AddTopicForm extends React.Component {
     return (
       <React.Fragment>
         <TopicModalTitle title="" onClose={this.props.onClose} />
-        <Form className={this.props.isOpen ? "topic-component-shown add-topic-form" : "topic-component-hidden add-topic-form"}>
+        <Form
+          className={
+            this.props.isOpen ? 'topic-component-shown add-topic-form' : 'topic-component-hidden add-topic-form'
+          }
+        >
           <Split gutter="md">
             <SplitItem isMain className="basic-configuration">
               <TextContent>
                 <Text component={TextVariants.h2}>Basic configuration</Text>
               </TextContent>
-              <FormGroup
-                label="Name"
-                isRequired
-                fieldId="simple-form-name"
-              >
+              <FormGroup label="Name" isRequired fieldId="simple-form-name">
                 <TextInput
                   isRequired
                   type="text"
@@ -199,17 +261,14 @@ class AddTopicForm extends React.Component {
                   aria-describedby="simple-form-name-helper"
                   value={name}
                   onChange={this.handleTopicNameChange}
-                  onKeyUp={this.handleTopicNameKey}
+                  onKeyUp={this.handleTopicNameKeyUp}
                   autoFocus
                   isValid={this.state.isNameValid}
                 />
               </FormGroup>
               <Grid gutter="md" className="topic-group">
                 <GridItem span={3}>
-                  <FormGroup
-                    label="Partitions"
-                    fieldId="partitions"
-                  >
+                  <FormGroup label="Partitions" fieldId="partitions">
                     <TextInput
                       isRequired
                       type="number"
@@ -223,12 +282,9 @@ class AddTopicForm extends React.Component {
                     />
                   </FormGroup>
                 </GridItem>
-                <GridItem span={1}></GridItem>
+                <GridItem span={1} />
                 <GridItem span={3}>
-                  <FormGroup
-                    label="Replicas"
-                    fieldId="replicas"
-                  >
+                  <FormGroup label="Replicas" fieldId="replicas">
                     <TextInput
                       isRequired
                       type="number"
@@ -242,7 +298,7 @@ class AddTopicForm extends React.Component {
                     />
                   </FormGroup>
                 </GridItem>
-                <GridItem span={5}></GridItem>
+                <GridItem span={5} />
               </Grid>
               <TextContent className="form-section">
                 <Text component={TextVariants.h2}>Customized configuration</Text>
@@ -254,7 +310,9 @@ class AddTopicForm extends React.Component {
                 </div>
               </div>
               <TextContent className="advanced-group-text">
-                <Text component={TextVariants.a} onClick={this.handleAddCustomConfiguration}>Add a new configuration</Text>
+                <Text component={TextVariants.a} onClick={this.handleAddCustomConfiguration}>
+                  Add a new configuration
+                </Text>
               </TextContent>
             </SplitItem>
 
@@ -262,9 +320,9 @@ class AddTopicForm extends React.Component {
               <TextContent>
                 <Text component={TextVariants.h2}>Data retention policy</Text>
               </TextContent>
-              <TextContent>
-                <Text component={TextVariants.small}>Messages are deleted after one week by default if no policies are set.</Text>
-              </TextContent>
+              <Title className="topics-policy-title" size="md">
+                Messages are deleted after one week by default if no policies are set.
+              </Title>
               <FormGroup fieldId="agePolicy" className="topic-group">
                 <Checkbox
                   label="Based on age"
@@ -275,15 +333,12 @@ class AddTopicForm extends React.Component {
                   value={this.state.ageBased}
                 />
               </FormGroup>
-              <div className={this.state.ageBased ? "group-displayed" : "group-none"}>
+              <div className={this.state.ageBased ? 'group-displayed' : 'group-none'}>
                 <div className="group-wrapper">
                   <span className="form-lable">Messages are deleted after</span>
                 </div>
                 <div className="group-wrapper">
-                  <FormGroup
-                    label=""
-                    fieldId="deletedAfter"
-                  >
+                  <FormGroup label="" fieldId="deletedAfter">
                     <TextInput
                       type="number"
                       id="deleted-after"
@@ -297,7 +352,7 @@ class AddTopicForm extends React.Component {
                   </FormGroup>
                 </div>
                 <div className="group-wrapper">
-                  <AgeSelectInput onSelect={this.handleAgeUnitChange}></AgeSelectInput>
+                  <AgeSelectInput plural={this.state.plural} onSelect={this.handleAgeUnitChange} />
                 </div>
               </div>
               <FormGroup fieldId="storagePolicy" className="topic-group">
@@ -310,16 +365,13 @@ class AddTopicForm extends React.Component {
                   name="storageBased"
                 />
               </FormGroup>
-              <div className={this.state.storageBased ? "group-displayed" : "group-none"}>
+              <div className={this.state.storageBased ? 'group-displayed' : 'group-none'}>
                 <div className="group-wrapper">
                   <div>Messages are deleted when the message log size exceeds</div>
                 </div>
                 <div className="group-together">
                   <div className="group-wrapper">
-                    <FormGroup
-                      label=""
-                      fieldId="deletedAfter"
-                    >
+                    <FormGroup label="" fieldId="deletedAfter">
                       <TextInput
                         type="number"
                         id="deletedIfOver"
@@ -333,7 +385,7 @@ class AddTopicForm extends React.Component {
                     </FormGroup>
                   </div>
                   <div className="group-wrapper">
-                    <SizeSelectInput onSelect={this.handleStorageUnitChange} className="size-select"></SizeSelectInput>
+                    <SizeSelectInput onSelect={this.handleStorageUnitChange} className="size-select" />
                   </div>
                 </div>
               </div>
@@ -350,7 +402,13 @@ class AddTopicForm extends React.Component {
             </SplitItem>
           </Split>
           <ActionGroup className="topic-form-buttons">
-            <Button key="confirm" variant="primary" onClick={this.handleFormSubmit} className="create-primary" isDisabled={!this.isFormValid()}>
+            <Button
+              key="confirm"
+              variant="primary"
+              onClick={this.handleFormSubmit}
+              className="create-primary"
+              isDisabled={!this.isFormValid()}
+            >
               Create
             </Button>
             <Button key="cancel" variant="plain" onClick={this.props.onClose} className="create-secondary">

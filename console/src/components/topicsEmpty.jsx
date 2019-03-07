@@ -5,12 +5,16 @@ import { CogsIcon } from '@patternfly/react-icons';
 import OpenAddTopic from './openAddTopic';
 
 class TopicsEmpty extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {};
+  }
+
   static propTypes = {
     onAction: PropTypes.func.isRequired,
     service: PropTypes.object.isRequired
   };
-
-  state = {};
 
   render() {
     return (

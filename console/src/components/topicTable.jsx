@@ -8,6 +8,9 @@ import TopicsService from '../topicsService';
 import TopicsEmpty from './topicsEmpty';
 import ServerError from './serverError';
 
+// amount of time to wait between REST api calls
+const SETTLE = 1000;
+
 class TopicsTable extends React.Component {
   constructor(props) {
     super(props);
@@ -53,10 +56,7 @@ class TopicsTable extends React.Component {
   handleDeleteRow = (event, rowIndex) => {
     const { rows } = this.state;
     const name = rows[rowIndex].cells[0];
-    console.log(`deleting ${name}`);
-    this.topics_service.deleteTopic(name).then(() => {
-      this.refreshTopicList();
-    });
+    this.topics_service.deleteTopic(name).then(setTimeout(this.refreshTopicList, SETTLE));
   };
   partitionClicked(value, xtraInfo) {
     const { rows } = this.state;
@@ -102,9 +102,9 @@ class TopicsTable extends React.Component {
         onClick={() => this.partitionClicked(value, xtraInfo)}
         className="partition-icon-button"
       >
-        <RegionsIcon size="md" color="rgb(0, 123, 186)" />
+        <RegionsIcon size="md" color="#007BBA" />
       </Button>
-      {value}
+      <span className="topics-region-value">{value}</span>
     </React.Fragment>
   );
 
@@ -166,10 +166,8 @@ class TopicsTable extends React.Component {
 
     rows = [];
     topics.forEach((topic, i) => {
-      let replicas = 0;
-      topic.partitions.forEach(partition => {
-        replicas += partition.replicas.length;
-      });
+      // each partition should have the same number of replicas, so just count the 1st
+      const replicas = topic.partitions[0].replicas.length;
       rows.push({
         isOpen: false,
         cells: [topic.name, topic.partitions.length, replicas, topic.consumers]
@@ -199,9 +197,11 @@ class TopicsTable extends React.Component {
     const { rows } = this.state;
     if (action === 'Delete selected topics') {
       const deleteList = rows.filter(row => row.selected).map(row => row.cells[0]);
-      this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList);
+      this.topics_service.deleteTopicList(deleteList).then(setTimeout(this.refreshTopicList, SETTLE));
     } else if (action === 'topic created') {
-      this.refreshTopicList();
+      // delay the refresh to avoid sporatic 404 error when calling GET /topics
+      // soon after calling POST to add new topic
+      setTimeout(this.refreshTopicList, SETTLE);
     }
   };
 

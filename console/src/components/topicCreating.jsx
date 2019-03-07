@@ -5,11 +5,13 @@ import PropTypes from 'prop-types';
 import { CogIcon } from '@patternfly/react-icons';
 
 class TopicCreating extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
   static propTypes = {
     isOpen: PropTypes.bool.isRequired
   };
-
-  state = {};
 
   render() {
     return (

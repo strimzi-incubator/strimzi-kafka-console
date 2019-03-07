@@ -4,12 +4,14 @@ import PropTypes from 'prop-types';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 
 class TopicCreating extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
   static propTypes = {
     onClose: PropTypes.func.isRequired,
     isOpen: PropTypes.bool.isRequired
   };
-
-  state = {};
 
   handleKeyUp = event => {
     console.log('handled key up');

@@ -1,26 +1,49 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class AgeSelectInput extends React.Component {
   constructor(props) {
     super(props);
-    this.options = [
-      { value: 'days', disabled: false },
-      { value: 'weeks', disabled: false },
-      { value: 'months', disabled: false },
-      { value: 'years', disabled: false }
-    ];
+
     this.default = 'days';
-
-    this.state = {
-      isExpanded: false,
-    };
   }
+  static options = {
+    msec: 1,
+    second: 1000,
+    minute: 60 * 1000,
+    hour: 60 * 60 * 1000,
+    day: 24 * 60 * 60 * 1000,
+    week: 7 * 24 * 60 * 60 * 1000,
+    month: 30 * 7 * 24 * 60 * 60 * 1000,
+    year: 52 * 7 * 24 * 60 * 60 * 60 * 1000
+  };
 
-  onSelect = (event) => {
-    this.setState({
-      isExpanded: false
-    });
+  static propTypes = {
+    onSelect: PropTypes.func.isRequired,
+    plural: PropTypes.bool.isRequired
+  };
+
+  static convertToMS = (unit, value) => AgeSelectInput.options[unit] * value;
+
+  onSelect = event => {
     this.props.onSelect(event.target.value);
+  };
+
+  options = () => {
+    const opts = AgeSelectInput.options;
+    // options sorted by age
+    const keys = Object.keys(opts);
+    // .map(key => `${key}${this.props.plural ? 's' : ''}`);
+    const ordered = keys.sort((a, b) => {
+      if (opts[a] < opts[b]) return -1;
+      if (opts[b] < opts[a]) return 1;
+      return 0;
+    });
+    return ordered.map((unit, index) => (
+      <option label="" value={unit} key={`age-${index}`}>
+        {`${unit}${this.props.plural ? 's' : ''}`}
+      </option>
+    ));
   };
 
   render() {
@@ -38,14 +61,7 @@ class AgeSelectInput extends React.Component {
           defaultValue={this.default}
           onChange={this.onSelect}
         >
-          {this.options.map((option, index) => (
-            <option
-              disabled={option.disabled}
-              label=''
-              value={option.value}
-              key={index}
-            >{option.value}</option>
-          ))}
+          {this.options()}
         </select>
       </div>
     );

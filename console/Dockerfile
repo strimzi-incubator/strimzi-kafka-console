@@ -1,6 +1,6 @@
 FROM node:11
 
-ARG rest_host=localhost
+ARG rest_host=strimzi-console-server
 ARG rest_port=8080
 ARG listen_port=8888
 ENV REST_HOST=${rest_host} REST_PORT=${rest_port} LISTEN_PORT=${listen_port}

@@ -2,6 +2,10 @@
   min-height: calc(100vh - 20em);
 }
 
+.topics-region-value {
+  color: #007BBA;
+}
+
 .topic-title-description {
   width: 50em;
 }
@@ -18,33 +22,42 @@ th.details-partition:before {
   color: white;
 }
 th.details-leader:before {
-  color: blue;
+  color: #007BBA;
 }
 th.details-insync:before {
-  color: rgb(110, 182, 110);
+  color: #92D400;
 }
 th.details-outsync:before {
-  color: rgb(253, 176, 33);
+  color: #F0AB00;
 }
 
-.pf-m-expanded .pf-c-table__action {
+tr.pf-m-expanded .pf-c-table__action {
   visibility: hidden;
+}
+
+div#root .topics-table {
+  padding-top: 28px;
 }
 
 .topics-table .pf-l-toolbar {
   background-color: #fff;
   padding: 1em;
-  margin-top: 1em;
   border-bottom: 1px solid #F0F0F0;
 }
 
 .input-search {
   float: right;
-  margin-right: 6px;
-  margin-top: -30px;
+  right: 8px;
+  top: -26px;
+  margin: 0;
   position: relative;
   z-index: 2;
   color: #666;
+  font-size: 18px;
+}
+
+#topicTableWrapper .pf-l-toolbar__group > .pf-l-toolbar__item {
+  height: 2em;
 }
 
 .pf-icon-search:before {
@@ -69,7 +82,8 @@ th.details-outsync:before {
 }
 
 input[type=number] {
-  border-bottom: 1px solid #EAEAEA !important;
+  border-bottom: 1px solid #EAEAEA;
+  width: 6em;
 }
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button {  
@@ -174,6 +188,12 @@ input[type=number]::-webkit-outer-spin-button {
   padding-right: 0.25em;
 }
 
+.topics-table .topics-table-table svg {
+  position: relative;
+  top: 4px;
+  left: -4px;
+}
+
 .table-cell-icon svg {
   padding-right: 0.25em;
 }
@@ -187,7 +207,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .App header[role="banner"] {
-  background: url('https://patternfly-react.surge.sh/assets/images/pfbg_1200.jpg') no-repeat center center fixed;
+  background: url('/assets/images/pfbg_1200.jpg') no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -196,6 +216,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 .topic-dialog .topic-component-shown {
   display: block;
+  overflow: hidden;
 }
 
 .topic-dialog .topic-component-hidden {
@@ -322,4 +343,16 @@ tbody.pf-m-expanded td[data-label="Partitions"] {
   padding-left: 0.1em;
   padding-top: 0.2em;
   margin-left: 1em;
+}
+
+.topics-toolbar-filter {
+  padding-left: 1em;
+}
+
+.pf-c-table tr > :first-child {
+  padding: 0;
+}
+
+form.add-topic-form .topics-policy-title {
+  font-size: 0.9rem;
 }
