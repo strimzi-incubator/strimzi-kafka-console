@@ -9,5 +9,5 @@ oc apply -f console/install -n $NAMESPACE
 oc expose service/strimzi-console -n $NAMESPACE
 
 echo "Waiting for console to be ready..."
-oc rollout status deployment/strimzi-console -w
+oc rollout status deployment/strimzi-console -w -n $NAMESPACE
 echo "...console ready"
