@@ -3,9 +3,9 @@
 NAMESPACE=${STRIMZI_NAMESPACE:-strimzi}
 CLUSTER=${STRIMZI_CLUSTER:-my-cluster}
 
-sed -i "s/my-cluster/$CLUSTER/" cluster/kafka-persistent-with-metrics.yaml
+sed "s/my-cluster/$CLUSTER/" cluster/kafka-persistent-with-metrics.yaml > cluster/$CLUSTER-kafka-persistent-with-metrics.yaml
 
-oc apply -f cluster/kafka-persistent-with-metrics.yaml -n $NAMESPACE
+oc apply -f cluster/$CLUSTER-kafka-persistent-with-metrics.yaml -n $NAMESPACE
 
 # delay for allowing cluster operator to create the first Zookeeper statefulset
 sleep 5
@@ -33,3 +33,5 @@ echo "...Kafka cluster ready"
 echo "Waiting for entity operator to be ready..."
 oc rollout status deployment/$CLUSTER-entity-operator -w -n $NAMESPACE
 echo "...entity operator ready"
+
+rm cluster/$CLUSTER-kafka-persistent-with-metrics.yaml
