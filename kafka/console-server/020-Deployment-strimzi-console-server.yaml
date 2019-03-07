@@ -16,7 +16,7 @@ spec:
         image: quay.io/redhatdemo/console-server:latest
         env:
         - name: KAFKA_BOOTSTRAP_SERVERS
-          value: my-cluster-kafka-bootstrap:9092
+          value: demo2019-kafka-bootstrap:9092
         - name: STRIMZI_NAMESPACE
           valueFrom:
             fieldRef:

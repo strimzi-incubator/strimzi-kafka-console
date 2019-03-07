@@ -12,6 +12,10 @@ It's possible to change this name setting the `STRIMZI_CLUSTER` env var before r
 
     export STRIMZI_CLUSTER=<my-cluster-name>
 
+Finally move to the `kafka` folder.
+
+    cd kafka
+
 ## Deploy Strimzi Cluster Operator
 
 In order to install the Cluster Operator, the logged user needs to have **admin rights** on the OpenShift cluster due to the CRDs (Custom Resource Definitions) which is installed.

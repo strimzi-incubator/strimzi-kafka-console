@@ -3,9 +3,9 @@
 NAMESPACE=${STRIMZI_NAMESPACE:-strimzi}
 CLUSTER=${STRIMZI_CLUSTER:-my-cluster}
 
-sed -i "s/my-cluster/$CLUSTER/" kafka/cluster/kafka-persistent-with-metrics.yaml
+sed -i "s/my-cluster/$CLUSTER/" cluster/kafka-persistent-with-metrics.yaml
 
-oc apply -f kafka/cluster/kafka-persistent-with-metrics.yaml -n $NAMESPACE
+oc apply -f cluster/kafka-persistent-with-metrics.yaml -n $NAMESPACE
 
 # delay for allowing cluster operator to create the first Zookeeper statefulset
 sleep 5
