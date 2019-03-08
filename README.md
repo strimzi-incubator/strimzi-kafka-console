@@ -16,6 +16,8 @@ Finally move to the `kafka` folder.
 
     cd kafka
 
+> WARNING: the following steps refers to the scripts moved to the [cluster setup](https://github.com/rhdemo/2019-demo4-cluster-setup) repo.
+
 ## Deploy Strimzi Cluster Operator
 
 In order to install the Cluster Operator, the logged user needs to have **admin rights** on the OpenShift cluster due to the CRDs (Custom Resource Definitions) which is installed.
