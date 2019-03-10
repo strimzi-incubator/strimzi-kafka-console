@@ -1,4 +1,13 @@
-2019/30/07
+2019/03/10 version 0.0.3
+- ported to patternfly-seed-javascript instead of create-react-app
+- poll after topic create/delete before getting list
+- add searchable dropdown to add topic form custom key
+- fixed details row overflowing its contains and not scrolling
+- fixed :focus outline on partition button
+- fixed favicon not appearing
+- cleaned up console logging
+
+2019/03/07 version 0.0.2
 - don't refresh list after create until created topic exists
 - UI improvements based on feedback
 - send "config" parameters with create request
