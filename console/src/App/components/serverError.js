@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
-import '@patternfly/react-core/dist/styles/base.css';
-import App from './App';
+import { Title, EmptyState, EmptyStateIcon, EmptyStateBody, Bullseye } from '@patternfly/react-core';
+import { ErrorCircleOIcon } from '@patternfly/react-icons';
 
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line global-require
-  const axe = require('react-axe');
-  axe(React, ReactDOM, 1000);
-}
+const ServerError = () => (
+  <Bullseye>
+    <EmptyState>
+      <EmptyStateIcon icon={ErrorCircleOIcon} />
+      <Title size="lg">Server error</Title>
+      <EmptyStateBody>Unable to connect to console_server at http://localhost:8080.</EmptyStateBody>
+    </EmptyState>
+  </Bullseye>
+);
 
-ReactDOM.render(<App />, document.getElementById('root'));
+export default ServerError;

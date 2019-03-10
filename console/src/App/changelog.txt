@@ -1,0 +1,4 @@
+2019/30/07
+- don't refresh list after create until created topic exists
+- UI improvements based on feedback
+- send "config" parameters with create request

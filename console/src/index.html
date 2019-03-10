@@ -1,4 +1,4 @@
-/*
+<!--
  * Copyright 2019 Red Hat Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
-import React from 'react';
-import ReactDOM from 'react-dom';
-import '@patternfly/react-core/dist/styles/base.css';
-import App from './App';
+-->
+<!DOCTYPE html>
+<html lang="en-US">
 
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line global-require
-  const axe = require('react-axe');
-  axe(React, ReactDOM, 1000);
-}
+<head>
+  <meta charset="utf-8">
+  <title>Patternfly Seed</title>
+  <meta id="appName" name="application-name" content="Patternfly Seed">
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+</head>
 
-ReactDOM.render(<App />, document.getElementById('root'));
+<body>
+  <noscript>Enabling JavaScript is required to run this app.</noscript>
+  <div id="root"></div>
+</body>
+
+</html>

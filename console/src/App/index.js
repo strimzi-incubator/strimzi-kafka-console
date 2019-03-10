@@ -13,15 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { Component } from 'react';
 import '@patternfly/react-core/dist/styles/base.css';
-import App from './App';
+import '@patternfly/patternfly/patternfly.css';
+import './App.css';
+import PageLayoutManualNav from './components/layout';
 
-if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line global-require
-  const axe = require('react-axe');
-  axe(React, ReactDOM, 1000);
+class App extends Component {
+  state = {};
+
+  render() {
+    return (
+      <div className="App">
+        <PageLayoutManualNav />
+      </div>
+    );
+  }
 }
 
-ReactDOM.render(<App />, document.getElementById('root'));
+export default App;

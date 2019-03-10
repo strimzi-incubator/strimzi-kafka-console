@@ -8,19 +8,13 @@ ENV REST_HOST=${rest_host} REST_PORT=${rest_port} LISTEN_PORT=${listen_port}
 # Create app directory
 WORKDIR /usr/src/app
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-COPY package*.json ./
-
-#RUN npm install
-# don't install the dev dependencies
-RUN npm --errors ci --only=production
-
-# Bundle app source
+# copy everything in the current dir to /usr/src/app
+# except whatever is excluded in .dockerignore
 COPY . .
 
-RUN npm run build
+RUN yarn install
+
+RUN yarn build
 
 EXPOSE 8888
 

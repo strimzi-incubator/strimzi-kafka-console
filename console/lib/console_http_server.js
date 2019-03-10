@@ -50,13 +50,14 @@ const contentTypes = {
   '.ttf': 'application/font-ttf',
   '.eot': 'application/vnd.ms-fontobject',
   '.otf': 'application/font-otf',
-  '.svg': 'application/image/svg+xml'
+  '.svg': 'application/image/svg+xml',
+  '.ico': 'image/x-icon'
 };
 
 const getContentType = file => contentTypes[path.extname(file).toLowerCase()];
 
 const staticHandler = (request, response) => {
-  let file = path.join(__dirname, '../build/', url.parse(request.url).pathname);
+  let file = path.join(__dirname, '../dist/', url.parse(request.url).pathname);
   if (file.charAt(file.length - 1) === '/') {
     file += 'index.html';
   }
