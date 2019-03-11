@@ -86,13 +86,15 @@ class TopicsTable extends React.Component {
         const serverError = false;
         const { rows } = this.state;
         rows.forEach(row => {
-          topics.some(topic => {
-            if (row.cells[this.getColumn('Name')] === topic.name) {
-              row.cells[this.getColumn('Operators')] = topic.consumers;
-              return true;
-            }
-            return false;
-          });
+          if (typeof row.parent === 'undefined') {
+            topics.some(topic => {
+              if (row.cells[this.getColumn('Name')] === topic.name) {
+                row.cells[this.getColumn('Operators')] = topic.consumers;
+                return true;
+              }
+              return false;
+            });
+          }
         });
         this.setState({ rows, serverError });
         setTimeout(this.updateConsumers, 5000);
