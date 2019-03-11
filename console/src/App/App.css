@@ -353,6 +353,15 @@ tbody.pf-m-expanded td[data-label="Partitions"] {
   background-image: url("./assets/images/pfbg_1200.jpg")
 }
 
+.topics-modal-title span {
+  color: #fff;
+  font-size: 1.5em;
+  font-weight: 500;
+  display: inline-block;
+  margin-left: 1.25em;
+  margin-top: 1.5em;
+}
+
 .topic-dialog .add-topic-form {
   margin-top: 6em;
 }
@@ -392,4 +401,14 @@ tbody.pf-m-expanded td[data-label="Partitions"] {
 
 form.add-topic-form .topics-policy-title {
   font-size: 0.9rem;
+}
+
+.topics-pagination {
+  position: absolute;
+  right: 4em;
+  background-color: white;
+}
+
+.hidden {
+  visibility: hidden;
 }

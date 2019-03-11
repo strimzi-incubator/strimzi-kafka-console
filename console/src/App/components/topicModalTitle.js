@@ -35,7 +35,7 @@ class TopicModalTitle extends React.Component {
         <Button variant="plain" className="topics-title-close" onClick={this.props.onClose}>
           <TimesIcon color="white" size="md" />
         </Button>
-        {this.props.title}
+        <span>{this.props.title}</span>
       </div>
     );
   }

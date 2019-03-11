@@ -1,2 +1,9 @@
 node_modules
 dist
+yarn-error.log
+__mocks__
+README.md
+test-setup.js
+src/App/__snapchots__
+src/App/app.test.js
+src/App/changelog.txt

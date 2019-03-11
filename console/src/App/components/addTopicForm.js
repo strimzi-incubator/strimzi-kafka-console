@@ -255,7 +255,7 @@ class AddTopicForm extends React.Component {
     const { name, partitions, replicas } = this.state;
     return (
       <React.Fragment>
-        <TopicModalTitle title="" onClose={this.props.onClose} />
+        <TopicModalTitle title="Create a topic" onClose={this.props.onClose} />
         <Form
           className={
             this.props.isOpen ? 'topic-component-shown add-topic-form' : 'topic-component-hidden add-topic-form'

@@ -23,9 +23,6 @@ import TopicsService from '../topicsService';
 import TopicsEmpty from './topicsEmpty';
 import ServerError from './serverError';
 
-// amount of time to wait between REST api calls
-const SETTLE = 1000;
-
 class TopicsTable extends React.Component {
   constructor(props) {
     super(props);
@@ -38,6 +35,9 @@ class TopicsTable extends React.Component {
         { title: 'Consumers', cellFormatters: [this.formatConsumers.bind(this)] }
       ],
       rows: [],
+      totalRows: 1,
+      pageNumber: 1,
+      rowsPerPage: 5,
       actions: [
         {
           title: 'Delete',
@@ -46,11 +46,10 @@ class TopicsTable extends React.Component {
       ],
       serverError: false
     };
-    this.onCollapse = this.onCollapse.bind(this);
-    this.onSelect = this.onSelect.bind(this);
-    this.onSort = this.onSort.bind(this);
     this.refreshTopicList();
+    this.allRows = [];
   }
+
   refreshTopicList = () => {
     let { serverError } = this.state;
     this.topics_service.getTopicList().then(
@@ -71,8 +70,9 @@ class TopicsTable extends React.Component {
   handleDeleteRow = (event, rowIndex) => {
     const { rows } = this.state;
     const name = rows[rowIndex].cells[0];
-    this.topics_service.deleteTopic(name).then(setTimeout(this.refreshTopicList, SETTLE));
+    this.topics_service.deleteTopic(name).then(this.refreshTopicList);
   };
+
   partitionClicked(value, xtraInfo) {
     const { rows } = this.state;
     const { rowIndex } = xtraInfo;
@@ -93,7 +93,8 @@ class TopicsTable extends React.Component {
       rows
     });
   }
-  formatName = (value, xtraInfo) => value;
+
+  formatName = (value, _xtraInfo) => value;
 
   formatReplicas = value => (
     <span className="table-cell-icon">
@@ -123,7 +124,7 @@ class TopicsTable extends React.Component {
     </React.Fragment>
   );
 
-  onSelect(event, isSelected, rowId) {
+  onSelect = (_event, isSelected, rowId) => {
     let rows;
     if (rowId === -1) {
       rows = this.state.rows.map(oneRow => {
@@ -137,9 +138,9 @@ class TopicsTable extends React.Component {
     this.setState({
       rows
     });
-  }
+  };
 
-  onSort(_event, index, direction) {
+  onSort = (_event, index, direction) => {
     this.state.rows.forEach((row, i) => {
       row.orgIndex = i;
     });
@@ -164,7 +165,7 @@ class TopicsTable extends React.Component {
       },
       rows: finalRows
     });
-  }
+  };
 
   /* topics is an array of these
   {
@@ -177,8 +178,9 @@ class TopicsTable extends React.Component {
     }
   */
   onTopicList(topics) {
-    let { rows } = this.state;
+    let { rows, pageNumber } = this.state;
 
+    this.allRows = [];
     rows = [];
     topics.forEach((topic, i) => {
       // each partition should have the same number of replicas, so just count the 1st
@@ -192,11 +194,30 @@ class TopicsTable extends React.Component {
         cells: ['child']
       });
     });
-    this.setState({
-      rows
-    });
+    pageNumber = 1;
+    this.allRows = rows.slice();
+    this.handleSetPage(pageNumber);
   }
-  onCollapse(event, rowKey, isOpen) {
+
+  handleSetPage = pageNumber => {
+    const totalRows = this.allRows.length / 2;
+    const { rowsPerPage } = this.state;
+    const start = (pageNumber - 1) * (rowsPerPage * 2);
+    const end = Math.min(totalRows * 2, start + rowsPerPage * 2);
+    const rows = this.allRows.slice(start, end);
+    this.fixParents(rows);
+    this.setState({ rows, pageNumber, totalRows });
+  };
+
+  fixParents = rows => {
+    rows.forEach((row, i) => {
+      if (row.parent) {
+        row.parent = i - 1;
+      }
+    });
+  };
+
+  onCollapse = (event, rowKey, isOpen) => {
     const { rows } = this.state;
     /**
      * Please do not use rowKey as row index for more complex tables.
@@ -206,7 +227,7 @@ class TopicsTable extends React.Component {
     this.setState({
       rows
     });
-  }
+  };
 
   onTableAction = action => {
     const { rows } = this.state;
@@ -215,6 +236,8 @@ class TopicsTable extends React.Component {
       this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList());
     } else if (action === 'topic created') {
       this.refreshTopicList();
+    } else if (action === 'paged') {
+      this.handleSetPage(this.state.pageNumber, this.state.totalRows);
     }
   };
 
@@ -229,7 +252,15 @@ class TopicsTable extends React.Component {
 
     return (
       <div id="topicTableWrapper">
-        <TopicsToolbar onAction={this.onTableAction} service={this.topics_service} />
+        <TopicsToolbar
+          rows={this.state.rows}
+          totalRows={this.state.totalRows}
+          pageNumber={this.state.pageNumber}
+          rowsPerPage={this.state.rowsPerPage}
+          onAction={this.onTableAction}
+          handleSetPage={this.handleSetPage}
+          service={this.topics_service}
+        />
         <Table
           aria-label="Topics table"
           className="topics-table-table"

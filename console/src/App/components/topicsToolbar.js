@@ -32,6 +32,7 @@ import spacingStyles from '@patternfly/patternfly/utilities/Spacing/spacing.css'
 import { SortAmountDownIcon } from '@patternfly/react-icons';
 import PropTypes from 'prop-types';
 import OpenAddTopic from './openAddTopic';
+import TopicPagination from './topicPagination';
 
 class TopicsToolbar extends React.Component {
   constructor(props) {
@@ -46,7 +47,11 @@ class TopicsToolbar extends React.Component {
 
   static propTypes = {
     onAction: PropTypes.func.isRequired,
-    service: PropTypes.object.isRequired
+    service: PropTypes.object.isRequired,
+    totalRows: PropTypes.number.isRequired,
+    pageNumber: PropTypes.number.isRequired,
+    rowsPerPage: PropTypes.number.isRequired,
+    handleSetPage: PropTypes.func.isRequired
   };
 
   handleTextInputChange = value => {
@@ -131,6 +136,7 @@ class TopicsToolbar extends React.Component {
       />
     );
   };
+
   render() {
     return (
       <Toolbar className={css(flexStyles.justifyContentSpaceBetween, spacingStyles.mxXl, spacingStyles.myMd)}>
@@ -148,6 +154,16 @@ class TopicsToolbar extends React.Component {
           </ToolbarItem>
           <ToolbarItem>{this.buildKebab()}</ToolbarItem>
         </ToolbarGroup>
+        <div className="topics-pagination">
+          <ToolbarItem>
+            <TopicPagination
+              totalRows={this.props.totalRows}
+              pageNumber={this.props.pageNumber}
+              rowsPerPage={this.props.rowsPerPage}
+              handleSetPage={this.props.handleSetPage}
+            />
+          </ToolbarItem>
+        </div>
       </Toolbar>
     );
   }
