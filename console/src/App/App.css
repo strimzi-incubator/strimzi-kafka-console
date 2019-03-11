@@ -270,6 +270,7 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   width: 5.5em;
   height: 5em;
 }
+
 #topicCogMain {
   width: 4em;
   height: 4em;
@@ -284,6 +285,7 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   right: 0;
   width: 2em;
   height: 2em;
+  transform: rotate(15deg);
 }
 #topicCogLower {
   position: absolute;
@@ -291,6 +293,7 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   right: 0;
   width: 2em;
   height: 2em;
+  transform: rotate(15deg);
 }
 
 .topic-creating-wrapper {
