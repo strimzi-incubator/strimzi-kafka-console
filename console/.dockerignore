@@ -7,3 +7,4 @@ test-setup.js
 src/App/__snapchots__
 src/App/app.test.js
 src/App/changelog.txt
+package-lock.json
