@@ -52,14 +52,16 @@ class TopicsTable extends React.Component {
     this.allRows = [];
   }
 
-  refreshTopicList = () => {
+  refreshTopicList = justCreated => {
     let { serverError } = this.state;
     const firstLoad = false;
+    console.log('getting topic list');
     this.topics_service.getTopicList().then(
       topics => {
+        console.log('got topic list');
         serverError = false;
         this.setState({ serverError, firstLoad });
-        this.onTopicList(topics);
+        this.onTopicList(topics, justCreated);
       },
       e => {
         serverError = true;
@@ -180,12 +182,15 @@ class TopicsTable extends React.Component {
       "consumers": 0
     }
   */
-  onTopicList(topics) {
+  onTopicList(topics, justCreated) {
     let { rows, pageNumber } = this.state;
-
+    let justCreatedIndex = -1;
     this.allRows = [];
     rows = [];
     topics.forEach((topic, i) => {
+      if (topic.name === justCreated) {
+        justCreatedIndex = i * 2;
+      }
       // each partition should have the same number of replicas, so just count the 1st
       const replicas = topic.partitions[0].replicas.length;
       rows.push({
@@ -198,6 +203,11 @@ class TopicsTable extends React.Component {
       });
     });
     pageNumber = 1;
+    if (justCreatedIndex > 0) {
+      const tmp = rows[0];
+      rows[0] = rows[justCreatedIndex];
+      rows[justCreatedIndex] = tmp;
+    }
     this.allRows = rows.slice();
     this.handleSetPage(pageNumber);
   }
@@ -232,13 +242,13 @@ class TopicsTable extends React.Component {
     });
   };
 
-  onTableAction = action => {
+  onTableAction = (action, name) => {
     const { rows } = this.state;
     if (action === 'Delete selected topics') {
       const deleteList = rows.filter(row => row.cells.length > 1 && row.selected).map(row => row.cells[0]);
       this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList());
     } else if (action === 'topic created') {
-      this.refreshTopicList();
+      this.refreshTopicList(name);
     } else if (action === 'paged') {
       this.handleSetPage(this.state.pageNumber, this.state.totalRows);
     }

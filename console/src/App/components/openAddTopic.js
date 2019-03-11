@@ -61,7 +61,7 @@ class OpenAddTopic extends React.Component {
           isCreatedOpen: true
         }));
         // notify the table that it needs to refresh
-        this.props.onAction('topic created');
+        this.props.onAction('topic created', formElements.name);
       },
       e => {
         console.log(e);

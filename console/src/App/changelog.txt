@@ -1,5 +1,11 @@
+2019/03/11 version 0.0.5
+- added loading screen before topics are loaded the 1st time
+- updated .dockerignore
+- make the docker image much smaller (from 585M to 97M)
+- ensure newly added topic appears at top of list
+
 2019/03/11 version 0.0.4
-- added table pagination
+- added client-side table pagination
 
 2019/03/10 version 0.0.3
 - ported to patternfly-seed-javascript instead of create-react-app
