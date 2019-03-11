@@ -1,3 +1,6 @@
+2019/03/11 version 0.0.4
+- added table pagination
+
 2019/03/10 version 0.0.3
 - ported to patternfly-seed-javascript instead of create-react-app
 - poll after topic create/delete before getting list
