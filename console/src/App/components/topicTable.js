@@ -49,8 +49,11 @@ class TopicsTable extends React.Component {
       firstLoad: true
     };
     this.refreshTopicList();
+    this.polling = false;
     this.allRows = [];
   }
+
+  getColumn = col => this.state.columns.findIndex(c => c.title === col);
 
   refreshTopicList = justCreated => {
     let { serverError } = this.state;
@@ -62,12 +65,41 @@ class TopicsTable extends React.Component {
         serverError = false;
         this.setState({ serverError, firstLoad });
         this.onTopicList(topics, justCreated);
+        if (!this.polling) {
+          this.polling = true;
+          setTimeout(this.updateConsumers, 5000);
+        }
       },
       e => {
         serverError = true;
         this.setState({ serverError, firstLoad });
         console.log(`topics error is ${e}`);
         setTimeout(this.refreshTopicList, 5000);
+      }
+    );
+  };
+
+  updateConsumers = () => {
+    console.log('updating consumers');
+    this.topics_service.getTopicList().then(
+      topics => {
+        const serverError = false;
+        const { rows } = this.state;
+        rows.forEach(row => {
+          topics.some(topic => {
+            if (row.cells[this.getColumn('Name')] === topic.name) {
+              row.cells[this.getColumn('Operators')] = topic.consumers;
+              return true;
+            }
+            return false;
+          });
+        });
+        this.setState({ rows, serverError });
+        setTimeout(this.updateConsumers, 5000);
+      },
+      e => {
+        const serverError = true;
+        this.setState({ serverError });
       }
     );
   };
