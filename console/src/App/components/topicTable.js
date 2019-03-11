@@ -21,6 +21,7 @@ import TopicDetailsTable from './detailsTable';
 import TopicsToolbar from './topicsToolbar';
 import TopicsService from '../topicsService';
 import TopicsEmpty from './topicsEmpty';
+import TopicsLoading from './topicsLoading';
 import ServerError from './serverError';
 
 class TopicsTable extends React.Component {
@@ -44,7 +45,8 @@ class TopicsTable extends React.Component {
           onClick: this.handleDeleteRow
         }
       ],
-      serverError: false
+      serverError: false,
+      firstLoad: true
     };
     this.refreshTopicList();
     this.allRows = [];
@@ -52,15 +54,16 @@ class TopicsTable extends React.Component {
 
   refreshTopicList = () => {
     let { serverError } = this.state;
+    const firstLoad = false;
     this.topics_service.getTopicList().then(
       topics => {
         serverError = false;
-        this.setState({ serverError });
+        this.setState({ serverError, firstLoad });
         this.onTopicList(topics);
       },
       e => {
         serverError = true;
-        this.setState({ serverError });
+        this.setState({ serverError, firstLoad });
         console.log(`topics error is ${e}`);
         setTimeout(this.refreshTopicList, 5000);
       }
@@ -242,9 +245,12 @@ class TopicsTable extends React.Component {
   };
 
   render() {
-    const { columns, rows, actions, sortBy, serverError } = this.state;
+    const { columns, rows, actions, sortBy, serverError, firstLoad } = this.state;
     if (serverError) {
       return <ServerError />;
+    }
+    if (firstLoad) {
+      return <TopicsLoading />;
     }
     if (rows.length === 0) {
       return <TopicsEmpty onAction={this.onTableAction} service={this.topics_service} />;
