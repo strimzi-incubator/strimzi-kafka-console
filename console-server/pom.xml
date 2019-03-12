@@ -13,7 +13,6 @@
         <vertx.version>3.7.0-SNAPSHOT</vertx.version>
         <junit.version>4.12</junit.version>
         <log4j.version>2.11.1</log4j.version>
-        <strimzi.version>0.10.0</strimzi.version>
     </properties>
     
     <dependencies>
@@ -32,12 +31,7 @@
             <artifactId>vertx-kafka-client</artifactId>
             <version>${vertx.version}</version>
         </dependency>
-        <dependency>
-            <groupId>io.strimzi</groupId>
-            <artifactId>api</artifactId>
-            <version>${strimzi.version}</version>
-        </dependency>
-
+        
         <!-- testing -->
         <dependency>
             <groupId>junit</groupId>

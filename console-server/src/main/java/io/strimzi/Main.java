@@ -7,8 +7,6 @@ package io.strimzi;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 
@@ -21,9 +19,8 @@ public class Main {
 
         ConsoleServerConfig config = ConsoleServerConfig.fromMap(System.getenv());
         Vertx vertx = Vertx.vertx();
-        KubernetesClient kubeClient = new DefaultKubernetesClient();
-
-        run(vertx, config, kubeClient).setHandler(res -> {
+        
+        run(vertx, config).setHandler(res -> {
             if (res.failed()) {
                 log.error("Unable to start Console Server", res.cause());
                 System.exit(1);
@@ -31,7 +28,7 @@ public class Main {
         });
     }
 
-    static Future<String> run(Vertx vertx, ConsoleServerConfig config, KubernetesClient kubeClient) {
+    static Future<String> run(Vertx vertx, ConsoleServerConfig config) {
 
         Future<String> fut = Future.future();
         KafkaConsole topicConsole = new KafkaConsole(vertx, config.getKafkaBootstrapServers());
