@@ -85,7 +85,7 @@ div#root .topics-table {
 }
 .topic-dialog .basic-configuration {
   width: 50%;
-  margin-right: 4em !important;
+  margin-right: 2em !important;
 }
 
 .topic-dialog .advanced-group-text {
@@ -98,8 +98,12 @@ div#root .topics-table {
 
 input[type=number] {
   border-bottom: 1px solid #EAEAEA;
+}
+
+.group-wrapper input[type=number] {
   width: 6em;
 }
+
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button {  
 
@@ -180,9 +184,14 @@ input[type=number]::-webkit-outer-spin-button {
 
 .custom-wrapper.custom-key {
   width: 15em;
+  margin-right: 0.25em;
 }
 .custom-wrapper.custom-value {
   width: 9em;
+}
+.custom-wrapper.custom-help {
+  width: 1em;
+  margin-right: 0.5em;
 }
 
 #advancedOptions .custom-wrapper.custom-value input {
@@ -194,6 +203,16 @@ input[type=number]::-webkit-outer-spin-button {
   margin-right: 0;
 }
 
+.custom-wrapper.custom-delete button {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.custom-wrapper.custom-help button {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
 .custom-list-item {
   margin-bottom: 1em;
 }
@@ -201,6 +220,23 @@ input[type=number]::-webkit-outer-spin-button {
     content: '';
     display: block;
     clear: both;
+}
+
+div.pf-c-popover__content > button {
+  width: 1.5em;
+  padding: 4px;
+}
+
+.customized-help-title {
+  word-break: break-all;
+  white-space: normal;
+  font-size: 14px;
+  font-weight: bold;
+  width: 18em;
+}
+
+.topics-custom-boolean {
+  margin: 4px 0.5em;
 }
 
 .stacc__indicator-separator {
@@ -285,7 +321,6 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   right: 0;
   width: 2em;
   height: 2em;
-  transform: rotate(15deg);
 }
 #topicCogLower {
   position: absolute;
@@ -293,7 +328,6 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   right: 0;
   width: 2em;
   height: 2em;
-  transform: rotate(15deg);
 }
 
 .topic-creating-wrapper {

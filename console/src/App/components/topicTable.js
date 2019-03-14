@@ -24,6 +24,9 @@ import TopicsEmpty from './topicsEmpty';
 import TopicsLoading from './topicsLoading';
 import ServerError from './serverError';
 
+// refresh rate for getting consumer count
+const REFRESH = 5000;
+
 class TopicsTable extends React.Component {
   constructor(props) {
     super(props);
@@ -58,50 +61,54 @@ class TopicsTable extends React.Component {
   refreshTopicList = justCreated => {
     let { serverError } = this.state;
     const firstLoad = false;
-    console.log('getting topic list');
     this.topics_service.getTopicList().then(
       topics => {
-        console.log('got topic list');
         serverError = false;
         this.setState({ serverError, firstLoad });
         this.onTopicList(topics, justCreated);
         if (!this.polling) {
           this.polling = true;
-          setTimeout(this.updateConsumers, 5000);
+          setTimeout(this.updateConsumers, REFRESH);
         }
       },
       e => {
         serverError = true;
         this.setState({ serverError, firstLoad });
         console.log(`topics error is ${e}`);
-        setTimeout(this.refreshTopicList, 5000);
+        setTimeout(this.refreshTopicList, REFRESH);
       }
     );
   };
 
+  updateConsumer = (row, topic) => {
+    if (typeof row.parent === 'undefined' && row.cells[this.getColumn('Name')] === topic.name) {
+      row.cells[this.getColumn('Operators')] = topic.consumers;
+      return true;
+    }
+    return false;
+  };
+
+  // periodically refresh the consumers column
   updateConsumers = () => {
     console.log('updating consumers');
     this.topics_service.getTopicList().then(
       topics => {
         const serverError = false;
         const { rows } = this.state;
-        rows.forEach(row => {
-          if (typeof row.parent === 'undefined') {
-            topics.some(topic => {
-              if (row.cells[this.getColumn('Name')] === topic.name) {
-                row.cells[this.getColumn('Operators')] = topic.consumers;
-                return true;
-              }
-              return false;
-            });
-          }
+        topics.forEach(topic => {
+          rows.some(row => this.updateConsumer(row, topic));
+          this.allRows.some(row => this.updateConsumer(row, topic));
         });
+        // refresh the display of the visible rows
         this.setState({ rows, serverError });
-        setTimeout(this.updateConsumers, 5000);
+        setTimeout(this.updateConsumers, REFRESH);
       },
       e => {
+        // display the server error screen
         const serverError = true;
-        this.setState({ serverError });
+        // once topics return, start polling again
+        const firstLoad = true;
+        this.setState({ serverError, firstLoad });
       }
     );
   };
@@ -217,7 +224,7 @@ class TopicsTable extends React.Component {
     }
   */
   onTopicList(topics, justCreated) {
-    let { rows, pageNumber } = this.state;
+    let { rows } = this.state;
     let justCreatedIndex = -1;
     this.allRows = [];
     rows = [];
@@ -236,14 +243,13 @@ class TopicsTable extends React.Component {
         cells: ['child']
       });
     });
-    pageNumber = 1;
     if (justCreatedIndex > 0) {
       const tmp = rows[0];
       rows[0] = rows[justCreatedIndex];
       rows[justCreatedIndex] = tmp;
     }
     this.allRows = rows.slice();
-    this.handleSetPage(pageNumber);
+    this.handleSetPage(1);
   }
 
   handleSetPage = pageNumber => {
@@ -254,6 +260,10 @@ class TopicsTable extends React.Component {
     const rows = this.allRows.slice(start, end);
     this.fixParents(rows);
     this.setState({ rows, pageNumber, totalRows });
+  };
+
+  handleSetFilter = searchText => {
+    console.log(`requested to filter to ${searchText}`);
   };
 
   fixParents = rows => {
@@ -283,8 +293,6 @@ class TopicsTable extends React.Component {
       this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList());
     } else if (action === 'topic created') {
       this.refreshTopicList(name);
-    } else if (action === 'paged') {
-      this.handleSetPage(this.state.pageNumber, this.state.totalRows);
     }
   };
 
@@ -309,6 +317,7 @@ class TopicsTable extends React.Component {
           rowsPerPage={this.state.rowsPerPage}
           onAction={this.onTableAction}
           handleSetPage={this.handleSetPage}
+          handleSetFilter={this.handleSetFilter}
           service={this.topics_service}
         />
         <Table
