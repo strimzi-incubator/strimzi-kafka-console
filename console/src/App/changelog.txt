@@ -1,3 +1,6 @@
+2019/03/15 version 0.0.7
+- added table filtering
+
 2019/03/14 version 0.0.6
 - fix consumers only updating on current page of topics
 - add topic custom configuration

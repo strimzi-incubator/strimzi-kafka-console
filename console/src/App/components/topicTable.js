@@ -21,6 +21,7 @@ import TopicDetailsTable from './detailsTable';
 import TopicsToolbar from './topicsToolbar';
 import TopicsService from '../topicsService';
 import TopicsEmpty from './topicsEmpty';
+import TopicsTableEmpty from './topicsTableEmpty';
 import TopicsLoading from './topicsLoading';
 import ServerError from './serverError';
 
@@ -46,6 +47,12 @@ class TopicsTable extends React.Component {
         {
           title: 'Delete',
           onClick: this.handleDeleteRow
+        }
+      ],
+      chipGroups: [
+        {
+          category: 'Current filters',
+          chips: []
         }
       ],
       serverError: false,
@@ -253,25 +260,26 @@ class TopicsTable extends React.Component {
   }
 
   handleSetPage = pageNumber => {
-    const totalRows = this.allRows.length / 2;
+    let rows = this.filter(this.allRows);
+    const totalRows = rows.length;
     const { rowsPerPage } = this.state;
-    const start = (pageNumber - 1) * (rowsPerPage * 2);
-    const end = Math.min(totalRows * 2, start + rowsPerPage * 2);
-    const rows = this.allRows.slice(start, end);
-    this.fixParents(rows);
+    const start = (pageNumber - 1) * rowsPerPage;
+    const end = Math.min(totalRows, start + rowsPerPage);
+    rows = rows.slice(start, end);
+    rows = this.fixParents(rows);
     this.setState({ rows, pageNumber, totalRows });
   };
 
-  handleSetFilter = searchText => {
-    console.log(`requested to filter to ${searchText}`);
-  };
-
   fixParents = rows => {
+    const newRows = [];
     rows.forEach((row, i) => {
-      if (row.parent) {
-        row.parent = i - 1;
-      }
+      newRows.push(row);
+      newRows.push({
+        parent: i * 2,
+        cells: ['child']
+      });
     });
+    return newRows;
   };
 
   onCollapse = (event, rowKey, isOpen) => {
@@ -286,14 +294,56 @@ class TopicsTable extends React.Component {
     });
   };
 
-  onTableAction = (action, name) => {
+  filter = rows => {
+    const { chipGroups } = this.state;
+    const filters = chipGroups[0].chips;
+    return rows.filter(row => {
+      if (typeof row.parent !== 'undefined') return false;
+      if (filters.length === 0) return true;
+      if (filters.every(filter => row.cells[this.getColumn('Name')].indexOf(filter) >= 0)) {
+        return true;
+      }
+      return false;
+    });
+  };
+
+  deleteFilter = id => {
+    const copyOfChipGroups = this.state.chipGroups;
+    for (let i = 0; copyOfChipGroups.length > i; i++) {
+      const index = copyOfChipGroups[i].chips.indexOf(id);
+      if (index !== -1) {
+        copyOfChipGroups[i].chips.splice(index, 1);
+        this.setState({ chipGroups: copyOfChipGroups });
+        this.handleSetPage(1);
+      }
+    }
+  };
+  filterAdded = searchValue => {
+    const { chipGroups } = this.state;
+    chipGroups[0].chips.push(searchValue);
+    this.setState({ chipGroups });
+    this.handleSetPage(1);
+  };
+
+  onTableAction = (action, data) => {
     const { rows } = this.state;
     if (action === 'Delete selected topics') {
       const deleteList = rows.filter(row => row.cells.length > 1 && row.selected).map(row => row.cells[0]);
       this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList());
     } else if (action === 'topic created') {
-      this.refreshTopicList(name);
+      this.refreshTopicList(data);
     }
+  };
+
+  renderTableBody = () => {
+    if (this.state.rows.length > 0)
+      return (
+        <React.Fragment>
+          <TableHeader className="topics-table-header" />
+          <TableBody />
+        </React.Fragment>
+      );
+    return <TopicsTableEmpty />;
   };
 
   render() {
@@ -304,20 +354,21 @@ class TopicsTable extends React.Component {
     if (firstLoad) {
       return <TopicsLoading />;
     }
-    if (rows.length === 0) {
+    if (this.allRows.length === 0) {
       return <TopicsEmpty onAction={this.onTableAction} service={this.topics_service} />;
     }
 
     return (
       <div id="topicTableWrapper">
         <TopicsToolbar
-          rows={this.state.rows}
+          filters={this.state.chipGroups}
           totalRows={this.state.totalRows}
           pageNumber={this.state.pageNumber}
           rowsPerPage={this.state.rowsPerPage}
           onAction={this.onTableAction}
           handleSetPage={this.handleSetPage}
-          handleSetFilter={this.handleSetFilter}
+          deleteFilter={this.deleteFilter}
+          filterAdded={this.filterAdded}
           service={this.topics_service}
         />
         <Table
@@ -331,8 +382,7 @@ class TopicsTable extends React.Component {
           rows={rows}
           cells={columns}
         >
-          <TableHeader className="topics-table-header" />
-          <TableBody />
+          {this.renderTableBody()}
         </Table>
       </div>
     );

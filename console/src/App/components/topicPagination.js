@@ -19,7 +19,7 @@ class TopicPagination extends React.Component {
   }
 
   getPageStart() {
-    return (this.props.pageNumber - 1) * this.props.rowsPerPage + 1;
+    return this.props.totalRows === 0 ? 0 : (this.props.pageNumber - 1) * this.props.rowsPerPage + 1;
   }
 
   getPageEnd() {

@@ -60,15 +60,21 @@ div#root .topics-table {
   border-bottom: 1px solid #F0F0F0;
 }
 
+.topics-table .topics-chips-toolbar {
+  padding: 0 2em;
+}
+
 .input-search {
-  float: right;
-  right: 8px;
-  top: -26px;
-  margin: 0;
   position: relative;
-  z-index: 2;
+  right: 26px;
+  top: 4px;
   color: #666;
   font-size: 18px;
+}
+
+#topicTableWrapper .topics-search-filter {
+  padding-right: 2em;
+  width: 16em;
 }
 
 #topicTableWrapper .pf-l-toolbar__group > .pf-l-toolbar__item {
@@ -246,6 +252,11 @@ div.pf-c-popover__content > button {
 #advancedOptions .stacc__control {
   border-radius: 0;
   border-bottom: 1px solid rgb(114, 118, 123);
+}
+
+#advancedOptions .stacc__menu {
+  position: absolute;
+  top: 0;
 }
 
 .topics-table .topics-table-table .partition-icon-button {
