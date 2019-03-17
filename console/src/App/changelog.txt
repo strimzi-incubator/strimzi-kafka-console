@@ -1,3 +1,7 @@
+2019/03/17 version 0.0.8
+- added toast messages for add and delete topic
+- added notification drawer
+
 2019/03/15 version 0.0.7
 - added table filtering
 
