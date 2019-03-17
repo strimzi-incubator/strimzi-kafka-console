@@ -18,7 +18,6 @@ import {
   Button,
   Dropdown,
   DropdownPosition,
-  DropdownToggle,
   DropdownItem,
   KebabToggle,
   TextInput,
@@ -29,10 +28,11 @@ import {
   ChipGroup,
   ChipGroupToolbarItem
 } from '@patternfly/react-core';
+import { SortByDirection } from '@patternfly/react-table';
 import { css } from '@patternfly/react-styles';
 import flexStyles from '@patternfly/patternfly/utilities/Flex/flex.css';
 import spacingStyles from '@patternfly/patternfly/utilities/Spacing/spacing.css';
-import { SortAmountDownIcon } from '@patternfly/react-icons';
+import { SortAlphaDownIcon, SortAlphaUpIcon, SortIcon } from '@patternfly/react-icons';
 import PropTypes from 'prop-types';
 import OpenAddTopic from './openAddTopic';
 import TopicPagination from './topicPagination';
@@ -49,6 +49,7 @@ class TopicsToolbar extends React.Component {
 
   static propTypes = {
     onAction: PropTypes.func.isRequired,
+    handleNewNotification: PropTypes.func.isRequired,
     filters: PropTypes.array.isRequired,
     service: PropTypes.object.isRequired,
     totalRows: PropTypes.number.isRequired,
@@ -56,7 +57,8 @@ class TopicsToolbar extends React.Component {
     rowsPerPage: PropTypes.number.isRequired,
     handleSetPage: PropTypes.func.isRequired,
     deleteFilter: PropTypes.func.isRequired,
-    filterAdded: PropTypes.func.isRequired
+    filterAdded: PropTypes.func.isRequired,
+    sortBy: PropTypes.object.isRequired
   };
 
   handleTextInputChange = value => {
@@ -99,6 +101,7 @@ class TopicsToolbar extends React.Component {
         onKeyPress={e => this.onValueKeyPress(e)}
         className="topics-search-filter"
         aria-label="search text input"
+        title="Filter topics"
       />
       <span className="fa fa-search input-search" />
     </React.Fragment>
@@ -124,6 +127,19 @@ class TopicsToolbar extends React.Component {
     );
   };
 
+  buildSort = () => {
+    if (typeof this.props.sortBy.direction === 'undefined') {
+      return <SortIcon />;
+    } else if (this.props.sortBy.direction === SortByDirection.asc) {
+      return <SortAlphaUpIcon />;
+    }
+    return <SortAlphaDownIcon />;
+  };
+
+  handleSortClick = () => {
+    this.props.onAction('switch sort');
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -131,14 +147,18 @@ class TopicsToolbar extends React.Component {
           <ToolbarGroup className="topics-toolbar-filter">
             <ToolbarItem className={css(spacingStyles.mrXl)}>{this.buildSearchBox()}</ToolbarItem>
             <ToolbarItem>
-              <Button variant="plain" aria-label="Sort A-Z">
-                <SortAmountDownIcon />
+              <Button onClick={this.handleSortClick} title="Sort by name" variant="plain" aria-label="Sort A-Z">
+                {this.buildSort()}
               </Button>
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem className={css(spacingStyles.mxMd)}>
-              <OpenAddTopic onAction={this.props.onAction} service={this.props.service} />
+              <OpenAddTopic
+                onAction={this.props.onAction}
+                handleNewNotification={this.props.handleNewNotification}
+                service={this.props.service}
+              />
             </ToolbarItem>
             <ToolbarItem>{this.buildKebab()}</ToolbarItem>
           </ToolbarGroup>

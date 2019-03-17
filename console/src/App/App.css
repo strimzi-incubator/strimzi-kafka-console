@@ -254,11 +254,6 @@ div.pf-c-popover__content > button {
   border-bottom: 1px solid rgb(114, 118, 123);
 }
 
-#advancedOptions .stacc__menu {
-  position: absolute;
-  top: 0;
-}
-
 .topics-table .topics-table-table .partition-icon-button {
   padding-right: 0.25em;
 }
@@ -424,14 +419,9 @@ tbody.pf-m-expanded td[data-label="Partitions"] {
 }
 
 .avatar-dot {
-  height: 35px;
-  width: 35px;
-  background-color: white;
-  border-radius: 50%;
-  display: inline-block;
-  padding-left: 0.1em;
-  padding-top: 0.2em;
-  margin-left: 1em;
+  background-color: #fff;
+  padding-top: 6px;
+  clip-path: circle(43%);
 }
 
 .topics-toolbar-filter {
@@ -459,4 +449,27 @@ form.add-topic-form .topics-policy-title {
 
 .hidden {
   visibility: hidden;
+}
+
+.navbar.navbar-pf-vertical {
+  background-color: transparent;
+}
+
+.navbar-pf-vertical .nav .nav-item-iconic .fa {
+  color: #EAEAEA;
+}
+
+.navbar-pf-vertical .nav .nav-item-iconic {
+  padding-top: 20px;
+}
+
+.dot .pf-c-button.pf-m-plain:after {
+  content: "\f111";
+  font-family: "FontAwesome";
+  display: block;
+  position: absolute;
+  right: -8px;
+  top: 0px;
+  color: #007BBA;
+  font-size: 10px;
 }

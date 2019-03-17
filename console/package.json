@@ -57,6 +57,7 @@
     "lodash": "^4.x",
     "mini-css-extract-plugin": "^0.4.5",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "patternfly": "^3.x",
     "patternfly-react": "^2.29.15",
     "prettier": "^1.15.2",
     "prop-types": "^15.7.2",

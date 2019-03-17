@@ -28,7 +28,8 @@ class TopicsEmpty extends React.Component {
 
   static propTypes = {
     onAction: PropTypes.func.isRequired,
-    service: PropTypes.object.isRequired
+    service: PropTypes.object.isRequired,
+    handleNewNotification: PropTypes.func.isRequired
   };
 
   render() {
@@ -38,7 +39,11 @@ class TopicsEmpty extends React.Component {
           <EmptyStateIcon icon={CogsIcon} />
           <Title size="lg">No topics</Title>
           <EmptyStateBody>There are no topics defined.</EmptyStateBody>
-          <OpenAddTopic onAction={this.props.onAction} service={this.props.service} />
+          <OpenAddTopic
+            handleNewNotification={this.props.handleNewNotification}
+            onAction={this.props.onAction}
+            service={this.props.service}
+          />
         </EmptyState>
       </Bullseye>
     );

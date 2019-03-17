@@ -32,6 +32,7 @@ class OpenAddTopic extends React.Component {
   }
   static propTypes = {
     onAction: PropTypes.func.isRequired,
+    handleNewNotification: PropTypes.func.isRequired,
     service: PropTypes.object.isRequired
   };
 
@@ -62,9 +63,11 @@ class OpenAddTopic extends React.Component {
         }));
         // notify the table that it needs to refresh
         this.props.onAction('topic created', formElements.name);
+        this.props.handleNewNotification('ok', `Created topic '${formElements.name}'`);
       },
       e => {
         console.log(e);
+        this.props.handleNewNotification('error', `Unable to create topic '${formElements.name}'`);
         this.setState(() => ({
           isModalOpen: false,
           isCreatingOpen: false,
@@ -79,7 +82,7 @@ class OpenAddTopic extends React.Component {
 
     return (
       <React.Fragment>
-        <Button variant="primary" onClick={this.handleModalToggle}>
+        <Button variant="primary" title="Create a new topic" onClick={this.handleModalToggle}>
           Create
         </Button>
         <Modal isLarge className="topic-dialog" title="" isOpen={isModalOpen} onClose={this.handleModalToggle}>

@@ -54,7 +54,7 @@
       "name": "flush.messages",
       "description": "This setting allows specifying an interval at which we will force an fsync of data written to the log. For example if this was set to 1 we would fsync after every message; if it were 5 we would fsync after every five messages. In general we recommend you not set this and use replication for durability and allow the operating system's background flush capabilities as it is more efficient. This setting can be overridden on a per - topic basis.",
       "type": "long",
-      "default": 9223372036854775807,
+      "default": 9007199254740991,
       "validValues": [
         0
       ],
@@ -65,7 +65,7 @@
       "name": "flush.ms",
       "description": "This setting allows specifying a time interval at which we will force an fsync of data written to the log. For example if this was set to 1000 we would fsync after 1000 ms had passed. In general we recommend you not set this and use replication for durability and allow the operating system's background flush capabilities as it is more efficient.",
       "type": "long",
-      "default": 9223372036854775807,
+      "default": 9007199254740991,
       "validValues": [
         0
       ],
@@ -125,7 +125,7 @@
       "name": "message.timestamp.difference.max.ms",
       "description": "The maximum difference allowed between the timestamp when a broker receives a message and the timestamp specified in the message. If message.timestamp.type = CreateTime, a message will be rejected if the difference in timestamp exceeds this threshold. This configuration is ignored if message.timestamp.type = LogAppendTime.",
       "type": "long",
-      "default": 9223372036854775807,
+      "default": 9007199254740991,
       "validValues": [
         0
       ],
@@ -196,7 +196,7 @@
       "name": "retention.bytes",
       "description": "This configuration controls the maximum size a partition (which consists of log segments) can grow to before we will discard old log segments to free up space if we are using the \"delete\" retention policy. By default there is no size limit only a time limit. Since this limit is enforced at the partition level, multiply it by the number of partitions to compute the topic retention in bytes.",
       "type": "long",
-      "default": 9223372036854775807,
+      "default": 9007199254740991,
       "validValues": [
         1
       ],

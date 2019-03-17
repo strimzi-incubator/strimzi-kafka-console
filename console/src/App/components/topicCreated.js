@@ -29,8 +29,6 @@ class TopicCreating extends React.Component {
   };
 
   handleKeyUp = event => {
-    console.log('handled key up');
-    console.log(event);
     if (event.keyCode === 13) {
       this.props.onClose();
     }

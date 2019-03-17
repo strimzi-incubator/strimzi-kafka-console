@@ -15,8 +15,9 @@
  */
 import React from 'react';
 import { Button } from '@patternfly/react-core';
-import { Table, TableHeader, TableBody, sortable, SortByDirection } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody, SortByDirection } from '@patternfly/react-table';
 import { UserFriendsIcon, ReplicatorIcon, RegionsIcon } from '@patternfly/react-icons';
+import PropTypes from 'prop-types';
 import TopicDetailsTable from './detailsTable';
 import TopicsToolbar from './topicsToolbar';
 import TopicsService from '../topicsService';
@@ -29,12 +30,16 @@ import ServerError from './serverError';
 const REFRESH = 5000;
 
 class TopicsTable extends React.Component {
+  static propTypes = {
+    handleNewNotification: PropTypes.func.isRequired
+  };
+
   constructor(props) {
     super(props);
     this.topics_service = new TopicsService();
     this.state = {
       columns: [
-        { title: 'Name', cellFormatters: [this.formatName.bind(this)], transforms: [sortable] },
+        { title: 'Name', cellFormatters: [this.formatName.bind(this)] },
         { title: 'Partitions', cellFormatters: [this.formatPartition.bind(this)] },
         { title: 'Partition replicas', cellFormatters: [this.formatReplicas.bind(this)] },
         { title: 'Consumers', cellFormatters: [this.formatConsumers.bind(this)] }
@@ -55,6 +60,7 @@ class TopicsTable extends React.Component {
           chips: []
         }
       ],
+      sortBy: {},
       serverError: false,
       firstLoad: true
     };
@@ -97,7 +103,6 @@ class TopicsTable extends React.Component {
 
   // periodically refresh the consumers column
   updateConsumers = () => {
-    console.log('updating consumers');
     this.topics_service.getTopicList().then(
       topics => {
         const serverError = false;
@@ -123,7 +128,10 @@ class TopicsTable extends React.Component {
   handleDeleteRow = (event, rowIndex) => {
     const { rows } = this.state;
     const name = rows[rowIndex].cells[0];
-    this.topics_service.deleteTopic(name).then(this.refreshTopicList);
+    this.topics_service.deleteTopic(name).then(() => {
+      this.props.handleNewNotification('warning', `Deleted topic '${name}'`);
+      this.refreshTopicList();
+    });
   };
 
   partitionClicked(value, xtraInfo) {
@@ -193,31 +201,38 @@ class TopicsTable extends React.Component {
     });
   };
 
-  onSort = (_event, index, direction) => {
-    this.state.rows.forEach((row, i) => {
-      row.orgIndex = i;
-    });
-    const mainRows = this.state.rows.filter(row => 'isOpen' in row);
-    let sortedRows = mainRows.sort((a, b) => {
-      if (a[index] < b[index]) return -1;
-      else if (a[index] > b[index]) return 1;
+  sortRows = (rows, direction, first) => {
+    const index = this.getColumn('Name');
+    if (typeof direction === 'undefined') {
+      if (typeof first !== 'undefined') {
+        const firstIndex = rows.findIndex(row => row.cells[index] === first);
+        if (firstIndex > 0) {
+          const tmp = rows[0];
+          rows[0] = rows[firstIndex];
+          rows[firstIndex] = tmp;
+        }
+      }
+      return rows;
+    }
+    rows = rows.sort((a, b) => {
+      if (a.cells[index] < b.cells[index]) return -1;
+      if (a.cells[index] > b.cells[index]) return 1;
       return 0;
     });
-    sortedRows = SortByDirection.asc ? sortedRows : sortedRows.reverse();
-    const finalRows = [];
-    sortedRows.forEach((row, i) => {
-      finalRows.push(row);
-      const child = this.state.rows[row.orgIndex + 1];
-      child.parent = i;
-      finalRows.push(child);
-    });
-    this.setState({
-      sortBy: {
-        index,
-        direction
+    return direction === 'desc' ? rows.reverse() : rows;
+  };
+
+  onSort = (_event, index, direction) => {
+    if (typeof direction === 'undefined') direction = SortByDirection.asc;
+    this.setState(
+      {
+        sortBy: {
+          index,
+          direction
+        }
       },
-      rows: finalRows
-    });
+      () => this.handleSetPage(1)
+    );
   };
 
   /* topics is an array of these
@@ -231,36 +246,29 @@ class TopicsTable extends React.Component {
     }
   */
   onTopicList(topics, justCreated) {
-    let { rows } = this.state;
-    let justCreatedIndex = -1;
-    this.allRows = [];
-    rows = [];
+    const rows = [];
     topics.forEach((topic, i) => {
-      if (topic.name === justCreated) {
-        justCreatedIndex = i * 2;
-      }
       // each partition should have the same number of replicas, so just count the 1st
       const replicas = topic.partitions[0].replicas.length;
       rows.push({
         isOpen: false,
         cells: [topic.name, topic.partitions.length, replicas, topic.consumers]
       });
-      rows.push({
-        parent: i * 2,
-        cells: ['child']
-      });
     });
-    if (justCreatedIndex > 0) {
-      const tmp = rows[0];
-      rows[0] = rows[justCreatedIndex];
-      rows[justCreatedIndex] = tmp;
+    this.allRows = rows;
+    if (typeof justCreated !== 'undefined') {
+      const { chipGroups, sortBy } = this.state;
+      chipGroups[0].chips = [];
+      sortBy.direction = undefined;
+      this.setState({ chipGroups, sortBy }, () => this.handleSetPage(1, justCreated));
+    } else {
+      this.handleSetPage(1);
     }
-    this.allRows = rows.slice();
-    this.handleSetPage(1);
   }
 
-  handleSetPage = pageNumber => {
+  handleSetPage = (pageNumber, first) => {
     let rows = this.filter(this.allRows);
+    rows = this.sortRows(rows, this.state.sortBy.direction, first);
     const totalRows = rows.length;
     const { rowsPerPage } = this.state;
     const start = (pageNumber - 1) * rowsPerPage;
@@ -321,17 +329,24 @@ class TopicsTable extends React.Component {
   filterAdded = searchValue => {
     const { chipGroups } = this.state;
     chipGroups[0].chips.push(searchValue);
-    this.setState({ chipGroups });
-    this.handleSetPage(1);
+    this.setState({ chipGroups }, () => this.handleSetPage(1));
   };
 
   onTableAction = (action, data) => {
     const { rows } = this.state;
     if (action === 'Delete selected topics') {
       const deleteList = rows.filter(row => row.cells.length > 1 && row.selected).map(row => row.cells[0]);
-      this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList());
+      this.topics_service.deleteTopicList(deleteList).then(() => {
+        const message = `Deleted topic${deleteList.length > 1 ? 's' : ''} [${deleteList.join(', ')}]`;
+        this.props.handleNewNotification('warning', message);
+        this.refreshTopicList();
+      });
     } else if (action === 'topic created') {
       this.refreshTopicList(data);
+    } else if (action === 'switch sort') {
+      const { sortBy } = this.state;
+      sortBy.direction = sortBy.direction === SortByDirection.asc ? SortByDirection.desc : SortByDirection.asc;
+      this.setState({ sortBy }, () => this.handleSetPage(1));
     }
   };
 
@@ -355,7 +370,13 @@ class TopicsTable extends React.Component {
       return <TopicsLoading />;
     }
     if (this.allRows.length === 0) {
-      return <TopicsEmpty onAction={this.onTableAction} service={this.topics_service} />;
+      return (
+        <TopicsEmpty
+          handleNewNotification={this.props.handleNewNotification}
+          onAction={this.onTableAction}
+          service={this.topics_service}
+        />
+      );
     }
 
     return (
@@ -366,10 +387,12 @@ class TopicsTable extends React.Component {
           pageNumber={this.state.pageNumber}
           rowsPerPage={this.state.rowsPerPage}
           onAction={this.onTableAction}
+          sortBy={this.state.sortBy}
           handleSetPage={this.handleSetPage}
           deleteFilter={this.deleteFilter}
           filterAdded={this.filterAdded}
           service={this.topics_service}
+          handleNewNotification={this.props.handleNewNotification}
         />
         <Table
           aria-label="Topics table"

@@ -48,6 +48,10 @@ class CustomKeyInput extends React.Component {
         index={this.props.index}
         onChange={this.handleChange}
         options={this.state.options}
+        styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+        menuPortalTarget={document.body}
+        menuPosition="absolute"
+        menuPlacement="bottom"
       />
     );
   }

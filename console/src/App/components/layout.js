@@ -15,6 +15,7 @@
  */
 import React from 'react';
 import {
+  Avatar,
   BackgroundImage,
   BackgroundImageSrc,
   Brand,
@@ -36,13 +37,17 @@ import {
 } from '@patternfly/react-core';
 import accessibleStyles from '@patternfly/patternfly/utilities/Accessibility/accessibility.css';
 import { css } from '@patternfly/react-styles';
-import { BellIcon, CogIcon, UserSecIcon } from '@patternfly/react-icons';
+import { CogIcon, UserSecIcon } from '@patternfly/react-icons';
+// import avatarImg from '@patternfly/patternfly/assets/images/img_avatar.svg';
 import xsImage from '@patternfly/patternfly/assets/images/pfbg_576.jpg';
 import xs2xImage from '@patternfly/patternfly/assets/images/pfbg_576@2x.jpg';
 import smImage from '@patternfly/patternfly/assets/images/pfbg_768.jpg';
 import sm2xImage from '@patternfly/patternfly/assets/images/pfbg_768@2x.jpg';
 import lgImage from '@patternfly/patternfly/assets/images/pfbg_1200.jpg';
 import filter from '@patternfly/patternfly/assets/images/background-filter.svg';
+import NotificationDrawer from './notificationDrawer';
+import NotificationList from './notificationList';
+
 import brandImg from './amqstreamslogo.png';
 import TopicsTable from './topicTable';
 
@@ -50,10 +55,16 @@ class PageLayoutManualNav extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isDropdownOpen: false,
-      isKebabDropdownOpen: false
+      isDropdownOpen: false
     };
+    this.drawerRef = React.createRef();
+    this.toastRef = React.createRef();
   }
+
+  handleNewNotification = (type, text) => {
+    this.drawerRef.current.handleNewNotification(type, text);
+    this.toastRef.current.handleNewNotification(type, text);
+  };
 
   onDropdownToggle = isDropdownOpen => {
     this.setState({
@@ -64,18 +75,6 @@ class PageLayoutManualNav extends React.Component {
   onDropdownSelect = event => {
     this.setState({
       isDropdownOpen: !this.state.isDropdownOpen
-    });
-  };
-
-  onKebabDropdownToggle = isKebabDropdownOpen => {
-    this.setState({
-      isKebabDropdownOpen
-    });
-  };
-
-  onKebabDropdownSelect = event => {
-    this.setState({
-      isKebabDropdownOpen: !this.state.isKebabDropdownOpen
     });
   };
 
@@ -91,9 +90,7 @@ class PageLayoutManualNav extends React.Component {
       <Toolbar>
         <ToolbarGroup className={css(accessibleStyles.screenReader, accessibleStyles.visibleOnLg)}>
           <ToolbarItem>
-            <Button id="notificationButton" aria-label="Notifications actions" variant={ButtonVariant.plain}>
-              <BellIcon />
-            </Button>
+            <NotificationDrawer ref={this.drawerRef} />
           </ToolbarItem>
           <ToolbarItem>
             <Button id="default-example-uid-02" aria-label="Settings actions" variant={ButtonVariant.plain}>
@@ -126,35 +123,45 @@ class PageLayoutManualNav extends React.Component {
     };
 
     const Header = (
-      <PageHeader
-        logo={<Brand src={brandImg} alt="Patternfly Logo" />}
-        toolbar={PageToolbar}
-        avatar={
-          <span className="avatar-dot">
-            <UserSecIcon color="#BBB" size="lg" />
-          </span>
-        }
-      />
+      <React.Fragment>
+        <PageHeader
+          logo={<Brand src={brandImg} alt="AMQ Streams logo" />}
+          toolbar={PageToolbar}
+          avatar={
+            <span className="avatar-dot">
+              <UserSecIcon color="#BBB" size="lg" />
+            </span>
+          }
+        />
+      </React.Fragment>
     );
+    /*
+        avatar={
+          <Avatar src={avatarImg} alt="avatar" />
+        }
+    */
 
     return (
       <React.Fragment>
-        <BackgroundImage src={bgImages} />
-        <Page header={Header}>
-          <PageSection variant={PageSectionVariants.light}>
-            <TextContent>
-              <Title size="3xl">Topics</Title>
-              <Text component="p" className="topic-title-description">
-                This screen shows all the topics in your Kafka cluster. Topics are split into partitions and each
-                partition can have one or more replicas. Replicas are evenly distributed across the brokers.
-              </Text>
-            </TextContent>
-          </PageSection>
-          <PageSection className="topics-table">
-            <TopicsTable />
-          </PageSection>
-        </Page>
-      </React.Fragment >
+        <nav className="navbar navbar-pf-vertical">
+          <BackgroundImage src={bgImages} />
+          <Page header={Header}>
+            <PageSection variant={PageSectionVariants.light}>
+              <NotificationList ref={this.toastRef} />
+              <TextContent>
+                <Title size="3xl">Topics</Title>
+                <Text component="p" className="topic-title-description">
+                  This screen shows all the topics in your Kafka cluster. Topics are split into partitions and each
+                  partition can have one or more replicas. Replicas are evenly distributed across the brokers.
+                </Text>
+              </TextContent>
+            </PageSection>
+            <PageSection className="topics-table">
+              <TopicsTable handleNewNotification={this.handleNewNotification} />
+            </PageSection>
+          </Page>
+        </nav>
+      </React.Fragment>
     );
   }
 }

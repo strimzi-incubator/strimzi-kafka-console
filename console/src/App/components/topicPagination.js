@@ -78,6 +78,7 @@ class TopicPagination extends React.Component {
             </span>
             <button
               className="pf-c-options-menu__toggle-button hidden"
+              title="Set number of topics per page"
               id="pagination-options-menu-bottom-example-toggle"
               onClick={this.handleToggleDropDown}
               aria-haspopup="listbox"
@@ -109,6 +110,7 @@ class TopicPagination extends React.Component {
         <nav className="pf-c-pagination__nav" aria-label="Pagination">
           <button
             className={`pf-c-button pf-m-plain${this.props.pageNumber > 1 ? '' : ' pf-m-disabled'}`}
+            title="First page"
             aria-label="Go to first page"
             aria-disabled="true"
             onClick={this.handleFirstPage}
@@ -117,6 +119,7 @@ class TopicPagination extends React.Component {
           </button>
           <button
             className={`pf-c-button pf-m-plain${this.props.pageNumber > 1 ? '' : ' pf-m-disabled'}`}
+            title="Previous page"
             aria-label="Go to previous page"
             aria-disabled="true"
             onClick={this.handlePreviousPage}
@@ -142,6 +145,7 @@ class TopicPagination extends React.Component {
           <button
             className={`pf-c-button pf-m-plain${this.props.pageNumber < this.getTotalPages() ? '' : ' pf-m-disabled'}`}
             onClick={this.handleNextPage}
+            title="Next page"
             aria-label="Go to next page"
           >
             <i className="fas fa-angle-right" aria-hidden="true" />
@@ -150,6 +154,7 @@ class TopicPagination extends React.Component {
             className={`pf-c-button pf-m-plain${this.props.pageNumber < this.getTotalPages() ? '' : ' pf-m-disabled'}`}
             onClick={this.handleLastPage}
             aria-label="Go to last page"
+            title="Last page"
           >
             <i className="fas fa-angle-double-right" aria-hidden="true" />
           </button>
