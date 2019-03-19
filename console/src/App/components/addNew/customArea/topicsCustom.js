@@ -28,7 +28,7 @@ import { TimesIcon } from '@patternfly/react-icons';
 import PropTypes from 'prop-types';
 import CustomKeyInput from './customKeyInput';
 import TopicsPopover from './topicsPopover';
-import CustomTopicConfigs from '../data/customTopicConfigs.json';
+import CustomTopicConfigs from '../../../data/customTopicConfigs.json';
 
 class TopicsCustom extends React.Component {
   static propTypes = {

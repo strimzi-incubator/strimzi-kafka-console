@@ -16,9 +16,9 @@
 import React from 'react';
 import { Modal, Button } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
-import AddTopicForm from './addTopicForm';
-import TopicCreating from './topicCreating';
-import TopicCreated from './topicCreated';
+import AddTopicForm from '../addNew/addTopicForm';
+import TopicCreating from '../addNew/topicCreating';
+import TopicCreated from '../addNew/topicCreated';
 
 class OpenAddTopic extends React.Component {
   constructor(props) {

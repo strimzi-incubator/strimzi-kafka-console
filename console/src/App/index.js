@@ -21,7 +21,7 @@ import 'patternfly/dist/css/patternfly-additions.css';
 import 'patternfly-react/dist/css/patternfly-react.css';
 
 import './App.css';
-import PageLayoutManualNav from './components/layout';
+import PageLayoutManualNav from './components/layout/layout';
 
 class App extends Component {
   state = {};

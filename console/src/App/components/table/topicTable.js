@@ -20,7 +20,7 @@ import { UserFriendsIcon, ReplicatorIcon, RegionsIcon } from '@patternfly/react-
 import PropTypes from 'prop-types';
 import TopicDetailsTable from './detailsTable';
 import TopicsToolbar from './topicsToolbar';
-import TopicsService from '../topicsService';
+import TopicsService from '../../topicsService';
 import TopicsEmpty from './topicsEmpty';
 import TopicsTableEmpty from './topicsTableEmpty';
 import TopicsLoading from './topicsLoading';
@@ -62,7 +62,8 @@ class TopicsTable extends React.Component {
       ],
       sortBy: {},
       serverError: false,
-      firstLoad: true
+      firstLoad: true,
+      disableDeleteAll: true
     };
     this.refreshTopicList();
     this.polling = false;
@@ -196,8 +197,10 @@ class TopicsTable extends React.Component {
       rows = [...this.state.rows];
       rows[rowId].selected = isSelected;
     }
+    const disableDeleteAll = !rows.some(row => row.selected);
     this.setState({
-      rows
+      rows,
+      disableDeleteAll
     });
   };
 
@@ -275,7 +278,8 @@ class TopicsTable extends React.Component {
     const end = Math.min(totalRows, start + rowsPerPage);
     rows = rows.slice(start, end);
     rows = this.fixParents(rows);
-    this.setState({ rows, pageNumber, totalRows });
+    const disableDeleteAll = true;
+    this.setState({ rows, pageNumber, totalRows, disableDeleteAll });
   };
 
   fixParents = rows => {
@@ -393,6 +397,7 @@ class TopicsTable extends React.Component {
           filterAdded={this.filterAdded}
           service={this.topics_service}
           handleNewNotification={this.props.handleNewNotification}
+          disableDeleteAll={this.state.disableDeleteAll}
         />
         <Table
           aria-label="Topics table"

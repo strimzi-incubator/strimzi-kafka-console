@@ -58,7 +58,8 @@ class TopicsToolbar extends React.Component {
     handleSetPage: PropTypes.func.isRequired,
     deleteFilter: PropTypes.func.isRequired,
     filterAdded: PropTypes.func.isRequired,
-    sortBy: PropTypes.object.isRequired
+    sortBy: PropTypes.object.isRequired,
+    disableDeleteAll: PropTypes.bool.isRequired
   };
 
   handleTextInputChange = value => {
@@ -119,7 +120,7 @@ class TopicsToolbar extends React.Component {
         isOpen={isKebabOpen}
         isPlain
         dropdownItems={[
-          <DropdownItem component="button" key="delete-topics">
+          <DropdownItem component="button" key="delete-topics" isDisabled={this.props.disableDeleteAll}>
             Delete selected topics
           </DropdownItem>
         ]}

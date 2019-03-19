@@ -26,7 +26,7 @@ class NotificationDrawer extends React.Component {
       panels: [
         {
           panelkey: '1',
-          panelName: 'Strimzi notifications',
+          panelName: 'Notifications',
           notifications: [],
           isExpanded: true
         }
@@ -62,7 +62,6 @@ class NotificationDrawer extends React.Component {
   };
 
   onMarkPanelAsRead = panelkey => {
-    console.log(`onMarkPanelAsRead called with panelkey ${panelkey}`);
     const panels = this.state.panels.map(panel => {
       if (panel.panelkey === panelkey) {
         panel.notifications.map(notification => {
@@ -77,7 +76,6 @@ class NotificationDrawer extends React.Component {
   };
 
   onMarkPanelAsClear = key => {
-    console.log(`onMarkPanelAsClear called with key ${key}`);
     const panels = this.state.panels.map(panel => {
       if (panel.panelkey === key) panel.notifications = [];
       return panel;
@@ -87,7 +85,6 @@ class NotificationDrawer extends React.Component {
   };
 
   onNotificationAsRead = (panelkey, nkey) => {
-    console.log(`onNotificationAsRead called with panelkey ${panelkey} nkey ${nkey}`);
     const panels = this.state.panels.map(panel => {
       if (panel.panelkey === panelkey) {
         panel.notifications.map(notification => {
@@ -101,13 +98,7 @@ class NotificationDrawer extends React.Component {
     this.updateUnreadCount();
   };
 
-  onNotificationClick = () => {
-    console.log('onNotificationClick called');
-    // On Click
-  };
-
   onNotificationHide = (panelkey, nkey) => {
-    console.log(`onNotificationHide called with panelkey ${panelkey} nkey ${nkey}`);
     const panels = this.state.panels.map(panel => {
       if (panel.panelkey === panelkey) {
         for (let i = 0; i < panel.notifications.length; i++) {
@@ -123,13 +114,11 @@ class NotificationDrawer extends React.Component {
   };
 
   togglePanel = key => {
-    console.log(`togglePanel called with ${key}`)
     if (this.state.expandedPanel === key) this.setState({ expandedPanel: '-1' });
     else this.setState({ expandedPanel: key });
   };
 
   toggleDrawerExpand = () => {
-    console.log(`toggleDrawerExpand called with ${this.state.isExpanded}`);
     this.setState(prevState => ({
       isExpanded: !prevState.isExpanded
     }));
@@ -144,7 +133,6 @@ class NotificationDrawer extends React.Component {
         }
       }
     }
-    console.log(`updateUnreadCount called. hasunread = ${hasunread}`);
     this.setState({ hasunread });
   };
 
@@ -170,7 +158,6 @@ class NotificationDrawer extends React.Component {
             isExpandable={this.state.isExpandable}
             expandedPanel={this.state.expandedPanel}
             toggleDrawerHide={this.toggleDrawerHide}
-            onNotificationClick={this.onNotificationClick}
             onNotificationAsRead={this.onNotificationAsRead}
             onNotificationHide={this.onNotificationHide}
             onMarkPanelAsClear={this.onMarkPanelAsClear}

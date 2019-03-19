@@ -31,10 +31,10 @@ import {
   SplitItem
 } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
-import AgeSelectInput from './ageSelectInput';
-import SizeSelectInput from './sizeSelectInput';
 import TopicModalTitle from './topicModalTitle';
-import TopicsCustom from './topicsCustom';
+import AgeSelectInput from './customArea/ageSelectInput';
+import SizeSelectInput from './customArea/sizeSelectInput';
+import TopicsCustom from './customArea/topicsCustom';
 
 class AddTopicForm extends React.Component {
   constructor(props) {

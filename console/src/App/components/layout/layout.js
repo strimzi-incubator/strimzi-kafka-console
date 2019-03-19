@@ -15,7 +15,6 @@
  */
 import React from 'react';
 import {
-  Avatar,
   BackgroundImage,
   BackgroundImageSrc,
   Brand,
@@ -48,8 +47,8 @@ import filter from '@patternfly/patternfly/assets/images/background-filter.svg';
 import NotificationDrawer from './notificationDrawer';
 import NotificationList from './notificationList';
 
-import brandImg from './amqstreamslogo.png';
-import TopicsTable from './topicTable';
+import brandImg from '../../assets/images/amqstreamslogo.png';
+import TopicsTable from '../table/topicTable';
 
 class PageLayoutManualNav extends React.Component {
   constructor(props) {
