@@ -1,3 +1,7 @@
+2019/03/22 veriosn 0.0.10
+ - don't show 'invalid' exclamation point on topic name entry field
+   until the field looses focus and is still invalid
+
 2019/03/18 version 0.0.9
  - don't allow delete selected if no rows are selected
  - code cleanup and commenting

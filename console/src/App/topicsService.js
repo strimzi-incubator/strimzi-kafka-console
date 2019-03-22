@@ -87,7 +87,7 @@ class TopicsService {
 
   isUniqueValidName(name) {
     const found = this.latest.some(item => item.name === name);
-    return name.length > 0 && !found;
+    return !found;
   }
 
   deleteTopicList(names) {

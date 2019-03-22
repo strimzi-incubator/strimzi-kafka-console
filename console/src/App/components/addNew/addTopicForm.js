@@ -53,9 +53,10 @@ class AddTopicForm extends React.Component {
       storageValue: '512',
       compacted: false,
       customized: [],
-      isNameValid: false,
+      isNameValid: true,
       isCustomValid: true
     };
+    this.nameChanged = false;
   }
 
   static propTypes = {
@@ -66,21 +67,33 @@ class AddTopicForm extends React.Component {
   };
 
   isFormValid = () => {
-    const { isNameValid, isCustomValid } = this.state;
+    const { isCustomValid, name } = this.state;
+    const isNameValid = this.props.service.isUniqueValidName(name) && name.length > 0;
     return isNameValid && isCustomValid;
   };
 
   handleTopicNameChange = name => {
     name = name.replace(' ', '-');
-    this.setState({ name });
-    const isNameValid = this.props.service.isUniqueValidName(name);
-    this.setState({ isNameValid });
+    let isNameValid = this.props.service.isUniqueValidName(name);
+    isNameValid = this.nameChanged === true && name.length === 0 ? false : isNameValid;
+    this.setState({ name, isNameValid });
+    this.nameChanged = true;
   };
 
   handleTopicNameKeyUp = key => {
     if (key.keyCode === 13 && this.isFormValid()) {
       this.handleFormSubmit();
     }
+  };
+
+  handleTopicNameBlur = () => {
+    this.nameChanged = true;
+    this.handleTopicNameChange(this.state.name);
+  };
+
+  handleTopicNameFocus = () => {
+    this.nameChanged = false;
+    this.handleTopicNameChange(this.state.name);
   };
 
   handlePartitionsChange = partitions => {
@@ -182,6 +195,8 @@ class AddTopicForm extends React.Component {
                   onKeyUp={this.handleTopicNameKeyUp}
                   autoFocus
                   isValid={this.state.isNameValid}
+                  onBlur={this.handleTopicNameBlur}
+                  onFocus={this.handleTopicNameFocus}
                   placeholder="Enter a topic name..."
                 />
               </FormGroup>
