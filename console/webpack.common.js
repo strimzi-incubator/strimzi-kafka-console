@@ -22,6 +22,18 @@ module.exports = {
         ]
       },
       {
+        test: /\.svg$/,
+        use: {
+          loader: 'svg-url-loader',
+          options: { outputPath: 'images' }
+        },
+        include(input) {
+          // only process modules with this loader
+          // if they live under an 'images' directory
+          return input.indexOf('images') > -1;
+        }
+      },
+      {
         test: /\.(svg|ttf|eot|woff|woff2)$/,
         use: {
           loader: 'file-loader',
@@ -42,7 +54,7 @@ module.exports = {
         use: [{ loader: 'url-loader', options: { limit: 10000, outputPath: 'images' } }, 'img-loader']
       },
       {
-        test: /\.svg$/,
+        test: /\svg$/,
         use: {
           loader: 'svg-url-loader',
           options: { outputPath: 'images' }

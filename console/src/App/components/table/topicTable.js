@@ -15,22 +15,31 @@
  */
 import React from 'react';
 import { Button } from '@patternfly/react-core';
-import { Table, TableHeader, TableBody, sortable, SortByDirection } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody, SortByDirection } from '@patternfly/react-table';
 import { UserFriendsIcon, ReplicatorIcon, RegionsIcon } from '@patternfly/react-icons';
+import PropTypes from 'prop-types';
 import TopicDetailsTable from './detailsTable';
 import TopicsToolbar from './topicsToolbar';
-import TopicsService from '../topicsService';
+import TopicsService from '../../topicsService';
 import TopicsEmpty from './topicsEmpty';
+import TopicsTableEmpty from './topicsTableEmpty';
 import TopicsLoading from './topicsLoading';
 import ServerError from './serverError';
 
+// refresh rate for getting consumer count
+const REFRESH = 5000;
+
 class TopicsTable extends React.Component {
+  static propTypes = {
+    handleNewNotification: PropTypes.func.isRequired
+  };
+
   constructor(props) {
     super(props);
     this.topics_service = new TopicsService();
     this.state = {
       columns: [
-        { title: 'Name', cellFormatters: [this.formatName.bind(this)], transforms: [sortable] },
+        { title: 'Name', cellFormatters: [this.formatName.bind(this)] },
         { title: 'Partitions', cellFormatters: [this.formatPartition.bind(this)] },
         { title: 'Partition replicas', cellFormatters: [this.formatReplicas.bind(this)] },
         { title: 'Consumers', cellFormatters: [this.formatConsumers.bind(this)] }
@@ -45,8 +54,16 @@ class TopicsTable extends React.Component {
           onClick: this.handleDeleteRow
         }
       ],
+      chipGroups: [
+        {
+          category: 'Current filters',
+          chips: []
+        }
+      ],
+      sortBy: {},
       serverError: false,
-      firstLoad: true
+      firstLoad: true,
+      disableDeleteAll: true
     };
     this.refreshTopicList();
     this.polling = false;
@@ -58,50 +75,53 @@ class TopicsTable extends React.Component {
   refreshTopicList = justCreated => {
     let { serverError } = this.state;
     const firstLoad = false;
-    console.log('getting topic list');
     this.topics_service.getTopicList().then(
       topics => {
-        console.log('got topic list');
         serverError = false;
         this.setState({ serverError, firstLoad });
         this.onTopicList(topics, justCreated);
         if (!this.polling) {
           this.polling = true;
-          setTimeout(this.updateConsumers, 5000);
+          setTimeout(this.updateConsumers, REFRESH);
         }
       },
       e => {
         serverError = true;
         this.setState({ serverError, firstLoad });
         console.log(`topics error is ${e}`);
-        setTimeout(this.refreshTopicList, 5000);
+        setTimeout(this.refreshTopicList, REFRESH);
       }
     );
   };
 
+  updateConsumer = (row, topic) => {
+    if (typeof row.parent === 'undefined' && row.cells[this.getColumn('Name')] === topic.name) {
+      row.cells[this.getColumn('Operators')] = topic.consumers;
+      return true;
+    }
+    return false;
+  };
+
+  // periodically refresh the consumers column
   updateConsumers = () => {
-    console.log('updating consumers');
     this.topics_service.getTopicList().then(
       topics => {
         const serverError = false;
         const { rows } = this.state;
-        rows.forEach(row => {
-          if (typeof row.parent === 'undefined') {
-            topics.some(topic => {
-              if (row.cells[this.getColumn('Name')] === topic.name) {
-                row.cells[this.getColumn('Operators')] = topic.consumers;
-                return true;
-              }
-              return false;
-            });
-          }
+        topics.forEach(topic => {
+          rows.some(row => this.updateConsumer(row, topic));
+          this.allRows.some(row => this.updateConsumer(row, topic));
         });
+        // refresh the display of the visible rows
         this.setState({ rows, serverError });
-        setTimeout(this.updateConsumers, 5000);
+        setTimeout(this.updateConsumers, REFRESH);
       },
       e => {
+        // display the server error screen
         const serverError = true;
-        this.setState({ serverError });
+        // once topics return, start polling again
+        const firstLoad = true;
+        this.setState({ serverError, firstLoad });
       }
     );
   };
@@ -109,7 +129,10 @@ class TopicsTable extends React.Component {
   handleDeleteRow = (event, rowIndex) => {
     const { rows } = this.state;
     const name = rows[rowIndex].cells[0];
-    this.topics_service.deleteTopic(name).then(this.refreshTopicList);
+    this.topics_service.deleteTopic(name).then(() => {
+      this.props.handleNewNotification('warning', `Deleted topic '${name}'`);
+      this.refreshTopicList();
+    });
   };
 
   partitionClicked(value, xtraInfo) {
@@ -174,36 +197,45 @@ class TopicsTable extends React.Component {
       rows = [...this.state.rows];
       rows[rowId].selected = isSelected;
     }
+    const disableDeleteAll = !rows.some(row => row.selected);
     this.setState({
-      rows
+      rows,
+      disableDeleteAll
     });
   };
 
-  onSort = (_event, index, direction) => {
-    this.state.rows.forEach((row, i) => {
-      row.orgIndex = i;
-    });
-    const mainRows = this.state.rows.filter(row => 'isOpen' in row);
-    let sortedRows = mainRows.sort((a, b) => {
-      if (a[index] < b[index]) return -1;
-      else if (a[index] > b[index]) return 1;
+  sortRows = (rows, direction, first) => {
+    const index = this.getColumn('Name');
+    if (typeof direction === 'undefined') {
+      if (typeof first !== 'undefined') {
+        const firstIndex = rows.findIndex(row => row.cells[index] === first);
+        if (firstIndex > 0) {
+          const tmp = rows[0];
+          rows[0] = rows[firstIndex];
+          rows[firstIndex] = tmp;
+        }
+      }
+      return rows;
+    }
+    rows = rows.sort((a, b) => {
+      if (a.cells[index] < b.cells[index]) return -1;
+      if (a.cells[index] > b.cells[index]) return 1;
       return 0;
     });
-    sortedRows = SortByDirection.asc ? sortedRows : sortedRows.reverse();
-    const finalRows = [];
-    sortedRows.forEach((row, i) => {
-      finalRows.push(row);
-      const child = this.state.rows[row.orgIndex + 1];
-      child.parent = i;
-      finalRows.push(child);
-    });
-    this.setState({
-      sortBy: {
-        index,
-        direction
+    return direction === 'desc' ? rows.reverse() : rows;
+  };
+
+  onSort = (_event, index, direction) => {
+    if (typeof direction === 'undefined') direction = SortByDirection.asc;
+    this.setState(
+      {
+        sortBy: {
+          index,
+          direction
+        }
       },
-      rows: finalRows
-    });
+      () => this.handleSetPage(1)
+    );
   };
 
   /* topics is an array of these
@@ -217,51 +249,49 @@ class TopicsTable extends React.Component {
     }
   */
   onTopicList(topics, justCreated) {
-    let { rows, pageNumber } = this.state;
-    let justCreatedIndex = -1;
-    this.allRows = [];
-    rows = [];
+    const rows = [];
     topics.forEach((topic, i) => {
-      if (topic.name === justCreated) {
-        justCreatedIndex = i * 2;
-      }
       // each partition should have the same number of replicas, so just count the 1st
       const replicas = topic.partitions[0].replicas.length;
       rows.push({
         isOpen: false,
         cells: [topic.name, topic.partitions.length, replicas, topic.consumers]
       });
-      rows.push({
+    });
+    this.allRows = rows;
+    if (typeof justCreated !== 'undefined') {
+      const { chipGroups, sortBy } = this.state;
+      chipGroups[0].chips = [];
+      sortBy.direction = undefined;
+      this.setState({ chipGroups, sortBy }, () => this.handleSetPage(1, justCreated));
+    } else {
+      this.handleSetPage(1);
+    }
+  }
+
+  handleSetPage = (pageNumber, first) => {
+    let rows = this.filter(this.allRows);
+    rows = this.sortRows(rows, this.state.sortBy.direction, first);
+    const totalRows = rows.length;
+    const { rowsPerPage } = this.state;
+    const start = (pageNumber - 1) * rowsPerPage;
+    const end = Math.min(totalRows, start + rowsPerPage);
+    rows = rows.slice(start, end);
+    rows = this.fixParents(rows);
+    const disableDeleteAll = true;
+    this.setState({ rows, pageNumber, totalRows, disableDeleteAll });
+  };
+
+  fixParents = rows => {
+    const newRows = [];
+    rows.forEach((row, i) => {
+      newRows.push(row);
+      newRows.push({
         parent: i * 2,
         cells: ['child']
       });
     });
-    pageNumber = 1;
-    if (justCreatedIndex > 0) {
-      const tmp = rows[0];
-      rows[0] = rows[justCreatedIndex];
-      rows[justCreatedIndex] = tmp;
-    }
-    this.allRows = rows.slice();
-    this.handleSetPage(pageNumber);
-  }
-
-  handleSetPage = pageNumber => {
-    const totalRows = this.allRows.length / 2;
-    const { rowsPerPage } = this.state;
-    const start = (pageNumber - 1) * (rowsPerPage * 2);
-    const end = Math.min(totalRows * 2, start + rowsPerPage * 2);
-    const rows = this.allRows.slice(start, end);
-    this.fixParents(rows);
-    this.setState({ rows, pageNumber, totalRows });
-  };
-
-  fixParents = rows => {
-    rows.forEach((row, i) => {
-      if (row.parent) {
-        row.parent = i - 1;
-      }
-    });
+    return newRows;
   };
 
   onCollapse = (event, rowKey, isOpen) => {
@@ -276,16 +306,63 @@ class TopicsTable extends React.Component {
     });
   };
 
-  onTableAction = (action, name) => {
+  filter = rows => {
+    const { chipGroups } = this.state;
+    const filters = chipGroups[0].chips;
+    return rows.filter(row => {
+      if (typeof row.parent !== 'undefined') return false;
+      if (filters.length === 0) return true;
+      if (filters.every(filter => row.cells[this.getColumn('Name')].indexOf(filter) >= 0)) {
+        return true;
+      }
+      return false;
+    });
+  };
+
+  deleteFilter = id => {
+    const copyOfChipGroups = this.state.chipGroups;
+    for (let i = 0; copyOfChipGroups.length > i; i++) {
+      const index = copyOfChipGroups[i].chips.indexOf(id);
+      if (index !== -1) {
+        copyOfChipGroups[i].chips.splice(index, 1);
+        this.setState({ chipGroups: copyOfChipGroups });
+        this.handleSetPage(1);
+      }
+    }
+  };
+  filterAdded = searchValue => {
+    const { chipGroups } = this.state;
+    chipGroups[0].chips.push(searchValue);
+    this.setState({ chipGroups }, () => this.handleSetPage(1));
+  };
+
+  onTableAction = (action, data) => {
     const { rows } = this.state;
     if (action === 'Delete selected topics') {
       const deleteList = rows.filter(row => row.cells.length > 1 && row.selected).map(row => row.cells[0]);
-      this.topics_service.deleteTopicList(deleteList).then(this.refreshTopicList());
+      this.topics_service.deleteTopicList(deleteList).then(() => {
+        const message = `Deleted topic${deleteList.length > 1 ? 's' : ''} [${deleteList.join(', ')}]`;
+        this.props.handleNewNotification('warning', message);
+        this.refreshTopicList();
+      });
     } else if (action === 'topic created') {
-      this.refreshTopicList(name);
-    } else if (action === 'paged') {
-      this.handleSetPage(this.state.pageNumber, this.state.totalRows);
+      this.refreshTopicList(data);
+    } else if (action === 'switch sort') {
+      const { sortBy } = this.state;
+      sortBy.direction = sortBy.direction === SortByDirection.asc ? SortByDirection.desc : SortByDirection.asc;
+      this.setState({ sortBy }, () => this.handleSetPage(1));
     }
+  };
+
+  renderTableBody = () => {
+    if (this.state.rows.length > 0)
+      return (
+        <React.Fragment>
+          <TableHeader className="topics-table-header" />
+          <TableBody />
+        </React.Fragment>
+      );
+    return <TopicsTableEmpty />;
   };
 
   render() {
@@ -296,20 +373,31 @@ class TopicsTable extends React.Component {
     if (firstLoad) {
       return <TopicsLoading />;
     }
-    if (rows.length === 0) {
-      return <TopicsEmpty onAction={this.onTableAction} service={this.topics_service} />;
+    if (this.allRows.length === 0) {
+      return (
+        <TopicsEmpty
+          handleNewNotification={this.props.handleNewNotification}
+          onAction={this.onTableAction}
+          service={this.topics_service}
+        />
+      );
     }
 
     return (
       <div id="topicTableWrapper">
         <TopicsToolbar
-          rows={this.state.rows}
+          filters={this.state.chipGroups}
           totalRows={this.state.totalRows}
           pageNumber={this.state.pageNumber}
           rowsPerPage={this.state.rowsPerPage}
           onAction={this.onTableAction}
+          sortBy={this.state.sortBy}
           handleSetPage={this.handleSetPage}
+          deleteFilter={this.deleteFilter}
+          filterAdded={this.filterAdded}
           service={this.topics_service}
+          handleNewNotification={this.props.handleNewNotification}
+          disableDeleteAll={this.state.disableDeleteAll}
         />
         <Table
           aria-label="Topics table"
@@ -322,8 +410,7 @@ class TopicsTable extends React.Component {
           rows={rows}
           cells={columns}
         >
-          <TableHeader className="topics-table-header" />
-          <TableBody />
+          {this.renderTableBody()}
         </Table>
       </div>
     );

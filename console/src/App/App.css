@@ -60,15 +60,21 @@ div#root .topics-table {
   border-bottom: 1px solid #F0F0F0;
 }
 
+.topics-table .topics-chips-toolbar {
+  padding: 0 2em;
+}
+
 .input-search {
-  float: right;
-  right: 8px;
-  top: -26px;
-  margin: 0;
   position: relative;
-  z-index: 2;
+  right: 26px;
+  top: 4px;
   color: #666;
   font-size: 18px;
+}
+
+#topicTableWrapper .topics-search-filter {
+  padding-right: 2em;
+  width: 16em;
 }
 
 #topicTableWrapper .pf-l-toolbar__group > .pf-l-toolbar__item {
@@ -85,7 +91,7 @@ div#root .topics-table {
 }
 .topic-dialog .basic-configuration {
   width: 50%;
-  margin-right: 4em !important;
+  margin-right: 2em !important;
 }
 
 .topic-dialog .advanced-group-text {
@@ -98,8 +104,12 @@ div#root .topics-table {
 
 input[type=number] {
   border-bottom: 1px solid #EAEAEA;
+}
+
+.group-wrapper input[type=number] {
   width: 6em;
 }
+
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button {  
 
@@ -180,9 +190,14 @@ input[type=number]::-webkit-outer-spin-button {
 
 .custom-wrapper.custom-key {
   width: 15em;
+  margin-right: 0.25em;
 }
 .custom-wrapper.custom-value {
   width: 9em;
+}
+.custom-wrapper.custom-help {
+  width: 1em;
+  margin-right: 0.5em;
 }
 
 #advancedOptions .custom-wrapper.custom-value input {
@@ -194,6 +209,16 @@ input[type=number]::-webkit-outer-spin-button {
   margin-right: 0;
 }
 
+.custom-wrapper.custom-delete button {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.custom-wrapper.custom-help button {
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
 .custom-list-item {
   margin-bottom: 1em;
 }
@@ -201,6 +226,23 @@ input[type=number]::-webkit-outer-spin-button {
     content: '';
     display: block;
     clear: both;
+}
+
+div.pf-c-popover__content > button {
+  width: 1.5em;
+  padding: 4px;
+}
+
+.customized-help-title {
+  word-break: break-all;
+  white-space: normal;
+  font-size: 14px;
+  font-weight: bold;
+  width: 18em;
+}
+
+.topics-custom-boolean {
+  margin: 4px 0.5em;
 }
 
 .stacc__indicator-separator {
@@ -285,7 +327,6 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   right: 0;
   width: 2em;
   height: 2em;
-  transform: rotate(15deg);
 }
 #topicCogLower {
   position: absolute;
@@ -293,7 +334,6 @@ button.pf-c-button.pf-m-plain.partition-icon-button:focus {
   right: 0;
   width: 2em;
   height: 2em;
-  transform: rotate(15deg);
 }
 
 .topic-creating-wrapper {
@@ -379,14 +419,9 @@ tbody.pf-m-expanded td[data-label="Partitions"] {
 }
 
 .avatar-dot {
-  height: 35px;
-  width: 35px;
-  background-color: white;
-  border-radius: 50%;
-  display: inline-block;
-  padding-left: 0.1em;
-  padding-top: 0.2em;
-  margin-left: 1em;
+  background-color: #fff;
+  padding-top: 6px;
+  clip-path: circle(43%);
 }
 
 .topics-toolbar-filter {
@@ -414,4 +449,27 @@ form.add-topic-form .topics-policy-title {
 
 .hidden {
   visibility: hidden;
+}
+
+.navbar.navbar-pf-vertical {
+  background-color: transparent;
+}
+
+.navbar-pf-vertical .nav .nav-item-iconic .fa {
+  color: #EAEAEA;
+}
+
+.navbar-pf-vertical .nav .nav-item-iconic {
+  padding-top: 20px;
+}
+
+.dot .pf-c-button.pf-m-plain:after {
+  content: "\f111";
+  font-family: "FontAwesome";
+  display: block;
+  position: absolute;
+  right: -8px;
+  top: 0px;
+  color: #007BBA;
+  font-size: 10px;
 }

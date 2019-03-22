@@ -1,10 +1,5 @@
 FROM node:8 as build
 
-ARG rest_host=strimzi-console-server
-ARG rest_port=8080
-ARG listen_port=8888
-ENV REST_HOST=${rest_host} REST_PORT=${rest_port} LISTEN_PORT=${listen_port}
-
 WORKDIR /app
 # copy everything in the current dir to /app
 # except whatever is excluded in .dockerignore
@@ -25,6 +20,11 @@ FROM node:8-alpine
 
 # copy our /dist /bin /lib
 COPY --from=build /app /
+
+ARG rest_host=strimzi-console-server
+ARG rest_port=8080
+ARG listen_port=8888
+ENV REST_HOST=${rest_host} REST_PORT=${rest_port} LISTEN_PORT=${listen_port}
 
 EXPOSE 8888
 

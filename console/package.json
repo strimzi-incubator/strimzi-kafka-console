@@ -1,6 +1,6 @@
 {
   "name": "strimzi-console",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "main": "index.js",
   "repository": {
     "type": "git",
@@ -16,6 +16,7 @@
     "dev": "webpack --config webpack.dev.js",
     "start": "webpack-dev-server --hot --color --progress --info=true --config webpack.dev.js",
     "test": "jest",
+    "jestu": "jest -u",
     "lint": "eslint ./src/",
     "build:bundle-profile": "webpack --profile --json > stats.json",
     "bundle-profile:analyze": "yarn build:bundle-profile && webpack-bundle-analyzer ./stats.json",
@@ -57,6 +58,7 @@
     "lodash": "^4.x",
     "mini-css-extract-plugin": "^0.4.5",
     "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "patternfly": "^3.x",
     "patternfly-react": "^2.29.15",
     "prettier": "^1.15.2",
     "prop-types": "^15.7.2",

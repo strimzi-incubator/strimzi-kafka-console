@@ -30,13 +30,11 @@ import {
   Split,
   SplitItem
 } from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
 import PropTypes from 'prop-types';
-import AgeSelectInput from './ageSelectInput';
-import SizeSelectInput from './sizeSelectInput';
-import CustomKeyInput from './customKeyInput';
 import TopicModalTitle from './topicModalTitle';
-import CustomTopicConfigs from '../data/customTopicConfigs.json';
+import AgeSelectInput from './customArea/ageSelectInput';
+import SizeSelectInput from './customArea/sizeSelectInput';
+import TopicsCustom from './customArea/topicsCustom';
 
 class AddTopicForm extends React.Component {
   constructor(props) {
@@ -58,8 +56,6 @@ class AddTopicForm extends React.Component {
       isNameValid: false,
       isCustomValid: true
     };
-
-    this.customTopicConfigs = [];
   }
 
   static propTypes = {
@@ -68,12 +64,6 @@ class AddTopicForm extends React.Component {
     service: PropTypes.object.isRequired,
     isOpen: PropTypes.bool.isRequired
   };
-
-  componentDidMount() {
-    // get the custom topics keys once and pass them to each select control
-    const separate = ['retention.ms', 'retention.bytes', 'cleanup.policy'];
-    this.customTopicConfigs = CustomTopicConfigs.customTopicConfigs.filter(c => !separate.includes(c.name));
-  }
 
   isFormValid = () => {
     const { isNameValid, isCustomValid } = this.state;
@@ -117,54 +107,6 @@ class AddTopicForm extends React.Component {
     this.setState({ [name]: value });
   };
 
-  // custom list is not valid if there are any empty values
-  getCustomValidity = customized => customized.every(c => c.value !== '');
-
-  // add a new custom configuration to the list
-  handleAddCustomConfiguration = () => {
-    const { customized } = this.state;
-    customized.push({
-      name: 'compression.type',
-      value: '',
-      option: { value: 'compression.type', label: 'compression.type' }
-    });
-    const isCustomValid = this.getCustomValidity(customized);
-    this.setState({ customized, isCustomValid });
-  };
-
-  // user has chosen a different custom key
-  handleCustomKeyChange = index => value => {
-    const { customized } = this.state;
-    customized[index].name = value.value;
-    customized[index].option = value;
-    console.log(`customKeyInput setting value of ${value}`);
-    console.log(value);
-    this.setState({ customized });
-  };
-
-  // user has changed the value for a custom key
-  handleCustomValueChange = custom => value => {
-    const { customized } = this.state;
-    customized.forEach(c => {
-      if (c.name === custom.name) {
-        c.value = value;
-      }
-    });
-    const isCustomValid = this.getCustomValidity(customized);
-    this.setState({ customized, isCustomValid });
-  };
-
-  // user had deleted a custom configuration
-  handleCustomDelete = custom => () => {
-    const { customized } = this.state;
-    const i = customized.findIndex(c => c.name === custom.name);
-    if (i >= 0) {
-      customized.splice(i, 1);
-    }
-    const isCustomValid = this.getCustomValidity(customized);
-    this.setState({ customized, isCustomValid });
-  };
-
   handleStorageUnitChange = size => {
     let { storageUnit } = this.state.storageUnit;
     storageUnit = size;
@@ -187,7 +129,7 @@ class AddTopicForm extends React.Component {
     // add the customized key/values to the POST body
     if (this.state.customized.length > 0) {
       this.state.customized.forEach(c => {
-        body.config[c.name] = c.value;
+        body.config[c.name] = c.type === 'number' ? Number(c.value) : c.value;
       });
     }
     // add any age based policy data to the body
@@ -206,50 +148,12 @@ class AddTopicForm extends React.Component {
     this.props.onSubmit(body);
   };
 
-  renderCustomizedListHeader() {
-    if (this.state.customized.length > 0) {
-      return (
-        <React.Fragment>
-          <div className="custom-wrapper custom-key">
-            <span>Key</span>
-          </div>
-          <div className="custom-wrapper custom-value">
-            <span>Value</span>
-          </div>
-        </React.Fragment>
-      );
+  setCustomized = (customized, isValid) => {
+    if (isValid === undefined) {
+      isValid = this.state.isCustomValid;
     }
-    return <React.Fragment />;
-  }
-
-  renderCustomizedList() {
-    return this.state.customized.map((custom, index) => (
-      <div className="custom-list-item" key={`fragment-${index}`}>
-        <div className="custom-wrapper custom-key">
-          <CustomKeyInput
-            onSelect={this.handleCustomKeyChange(index)}
-            initialName={custom.option}
-            customTopicConfigs={this.customTopicConfigs}
-          />
-        </div>
-        <div className="custom-wrapper custom-value">
-          <TextInput
-            type="text"
-            id={`custom-value-${index}`}
-            name="simple-form-name"
-            aria-describedby="simple-form-name-helper"
-            value={custom.value}
-            onChange={this.handleCustomValueChange(custom)}
-          />
-        </div>
-        <div className="custom-wrapper custom-delete">
-          <Button variant="plain" aria-label="Action" onClick={this.handleCustomDelete(custom)}>
-            <TimesIcon />
-          </Button>
-        </div>
-      </div>
-    ));
-  }
+    this.setState({ customized, isCustomValid: isValid });
+  };
 
   render() {
     const { name, partitions, replicas } = this.state;
@@ -278,6 +182,7 @@ class AddTopicForm extends React.Component {
                   onKeyUp={this.handleTopicNameKeyUp}
                   autoFocus
                   isValid={this.state.isNameValid}
+                  placeholder="Enter a topic name..."
                 />
               </FormGroup>
               <Grid gutter="md" className="topic-group">
@@ -317,19 +222,10 @@ class AddTopicForm extends React.Component {
               <TextContent className="form-section">
                 <Text component={TextVariants.h2}>Customized configuration</Text>
               </TextContent>
-              <div id="advancedOptions">
-                <div className="customized-config">
-                  {this.renderCustomizedListHeader()}
-                  {this.renderCustomizedList()}
-                  <TextContent className="advanced-group-text">
-                    <Text component={TextVariants.a} onClick={this.handleAddCustomConfiguration}>
-                      Add a new configuration
-                    </Text>
-                  </TextContent>
-                </div>
-              </div>
+              <TopicsCustom customized={this.state.customized} setCustomized={this.setCustomized} />
             </SplitItem>
 
+            {/* right half of form */}
             <SplitItem className="data-retention-policy">
               <TextContent>
                 <Text component={TextVariants.h2}>Data retention policy</Text>

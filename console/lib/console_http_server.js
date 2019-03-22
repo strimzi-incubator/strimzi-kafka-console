@@ -153,6 +153,7 @@ const handleRequest = (request, response) => {
         response.end('error');
       });
       // actually send the request to the back-end server
+      console.log(`sending ${body}`);
       req.write(body);
       req.end();
     });

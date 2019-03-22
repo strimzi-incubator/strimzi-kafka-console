@@ -1,3 +1,26 @@
+2019/03/18 version 0.0.9
+ - don't allow delete selected if no rows are selected
+ - code cleanup and commenting
+ - added/updated rudementary jest tests
+
+2019/03/17 version 0.0.8
+- added toast messages for delete topic and server error
+- added notification drawer to show add/delete/error messages
+
+2019/03/15 version 0.0.7
+- added table filtering
+- fixed table sorting
+
+2019/03/14 version 0.0.6
+- fix consumers only updating on current page of topics
+- add topic custom configuration
+  - added popup description for each custom key
+  - change input type based on custom key type
+    - dropdown list for keys with list of values
+    - on/off switch for boolean
+    - input type=number for long,int,double
+    - input type=text for everything else
+
 2019/03/11 version 0.0.5
 - added loading screen before topics are loaded the 1st time
 - updated .dockerignore

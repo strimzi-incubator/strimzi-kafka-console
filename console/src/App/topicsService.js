@@ -36,7 +36,7 @@ class TopicsService {
 
   createTopic = data =>
     new Promise((resolve, reject) => {
-      console.log(` *** creating ${data.name} ***`);
+      // console.log(` *** creating ${data.name} ***`);
       fetch(`${this.url}/topics`, {
         headers: {
           Accept: 'application/json',
@@ -44,22 +44,32 @@ class TopicsService {
         },
         method: 'POST',
         body: JSON.stringify(data)
-      }).then(() => {
-        const strategy = { '200': 'resolve', '404': 'wait', '500': 'reject' };
-        poll(`${this.url}/topics/${data.name}`, strategy).then(
-          res => {
-            resolve(res);
-          },
-          e => {
-            reject(e);
+      })
+        .then(response => {
+          if (response.status === 500) {
+            reject(Error('unable to create topic'));
+          } else {
+            const strategy = { '200': 'resolve', '404': 'wait', '500': 'reject' };
+            poll(`${this.url}/topics/${data.name}`, strategy).then(
+              res => {
+                resolve(res);
+              },
+              e => {
+                reject(e);
+              }
+            );
           }
-        );
-      });
+        })
+        .catch(e => {
+          console.log('create topic failed with error');
+          console.log(e);
+          reject(e);
+        });
     });
 
   deleteTopic = name =>
     new Promise((resolve, reject) => {
-      console.log(` *** deleting ${name} ***`);
+      // console.log(` *** deleting ${name} ***`);
       fetch(`${this.url}/topics/${name}`, {
         method: 'DELETE'
       }).then(() => {
@@ -120,8 +130,8 @@ const poll = (url, strategy, timeout, interval) => {
   const s404 = strategy['404'];
   const s500 = strategy['500'];
   let lastStatus = 0;
-  console.log('-------------------');
-  console.log(`polling for ${url}`);
+  // console.log('-------------------');
+  // console.log(`polling for ${url}`);
 
   const checkCondition = (resolve, reject) => {
     // If the condition is met, we're done!
@@ -131,15 +141,15 @@ const poll = (url, strategy, timeout, interval) => {
         const ret = {};
         // decide whether to resolve, reject, or wait
         if (res.status >= 200 && res.status <= 299) {
-          console.log(`received ${res.status} will ${s200}`);
+          // console.log(`received ${res.status} will ${s200}`);
           ret[s200] = res.json();
           return ret;
         } else if (res.status === 404) {
-          console.log(`received 404 will ${s404}`);
+          // console.log(`received 404 will ${s404}`);
           ret[s404] = [];
           return ret;
         }
-        console.log(`received ${res.status} will ${s500}`);
+        // console.log(`received ${res.status} will ${s500}`);
         ret[s500] = res.status;
         return ret;
       })

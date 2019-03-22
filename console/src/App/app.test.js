@@ -1,7 +1,7 @@
 import React from 'react';
-import App from './';
 import { mount, shallow } from 'enzyme';
-import { Alert, Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
+import App from './';
 
 describe('App tests', () => {
   test('should render default App component', () => {
@@ -9,17 +9,10 @@ describe('App tests', () => {
     expect(view).toMatchSnapshot();
   });
 
-  it('should render a dismiss button', () => {
+  it('should render a notification button', () => {
     const wrapper = mount(<App />);
     const button = wrapper.find(Button);
-    expect(button.exists()).toBe(true)
-  });
-
-  it('should hide the alert when clicking the dismiss button', () => {
-    const wrapper = mount(<App />);
-    const button = wrapper.find(Button);
-    expect(wrapper.find(Alert).exists()).toBe(true);
-    button.simulate('click');
-    expect(wrapper.find(Alert).exists()).toBe(false);
+    expect(button.exists()).toBe(true);
+    expect(button.first().prop('id')).toEqual('notificationButton');
   });
 });
