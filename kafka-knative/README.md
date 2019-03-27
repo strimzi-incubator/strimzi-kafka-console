@@ -5,7 +5,7 @@ Providing the needed rights and the deploying the application.
     oc adm policy add-scc-to-user privileged -z default -n strimzi-demo-test
     oc adm policy add-scc-to-user anyuid -z default -n strimzi-demo-test
 
-    oc apply -f message-dumper.yaml
+    oc apply -f message-dumper.yaml -n strimzi-demo-test
 
 For testing, use the `knative-ingressgateway` address got from:
 
@@ -17,5 +17,5 @@ To connect directly to the message dumper via HTTP:
 
 # Install the Knative Kafka source
 
-    oc apply -f kafka-source.yaml
+    oc apply -f kafka-source.yaml -n strimzi-demo-test
 
