@@ -6,8 +6,8 @@ spec:
   image: quay.io/redhatdemo/kafka-src
   args: 
     - '--bootstrap=demo2019-kafka-bootstrap.strimzi-demo.svc.cluster.local:9092'
-    - '--topic=data-filtered'
-    - '--groupId=foobar'
+    - '--topic=sensorstream-ai'
+    - '--groupId=my-kafka-source'
   sink:
     apiVersion: serving.knative.dev/v1alpha1
     kind: Service
