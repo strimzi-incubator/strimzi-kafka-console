@@ -15,8 +15,7 @@
  */
 import React from 'react';
 import {
-  BackgroundImage,
-  BackgroundImageSrc,
+  Avatar,
   Brand,
   Button,
   ButtonVariant,
@@ -36,18 +35,12 @@ import {
 } from '@patternfly/react-core';
 import accessibleStyles from '@patternfly/patternfly/utilities/Accessibility/accessibility.css';
 import { css } from '@patternfly/react-styles';
-import { CogIcon, UserSecIcon } from '@patternfly/react-icons';
-// import avatarImg from '@patternfly/patternfly/assets/images/img_avatar.svg';
-import xsImage from '@patternfly/patternfly/assets/images/pfbg_576.jpg';
-import xs2xImage from '@patternfly/patternfly/assets/images/pfbg_576@2x.jpg';
-import smImage from '@patternfly/patternfly/assets/images/pfbg_768.jpg';
-import sm2xImage from '@patternfly/patternfly/assets/images/pfbg_768@2x.jpg';
-import lgImage from '@patternfly/patternfly/assets/images/pfbg_1200.jpg';
-import filter from '@patternfly/patternfly/assets/images/background-filter.svg';
+import { CogIcon } from '@patternfly/react-icons';
 import NotificationDrawer from './notificationDrawer';
 import NotificationList from './notificationList';
 
-import brandImg from '../../assets/images/amqstreamslogo.png';
+let avatarImg = require('../../../../node_modules/@patternfly/patternfly/assets/images/img_avatar.svg');
+let brandImg = require('../../assets/images/AMQStreams-Stacked.svg');
 import TopicsTable from '../table/topicTable';
 
 class PageLayoutManualNav extends React.Component {
@@ -58,6 +51,8 @@ class PageLayoutManualNav extends React.Component {
     };
     this.drawerRef = React.createRef();
     this.toastRef = React.createRef();
+    brandImg = brandImg.substr(1, brandImg.length - 2);
+    avatarImg = avatarImg.substr(1, avatarImg.length - 2);
   }
 
   handleNewNotification = (type, text) => {
@@ -112,38 +107,22 @@ class PageLayoutManualNav extends React.Component {
       </Toolbar>
     );
 
-    const bgImages = {
-      [BackgroundImageSrc.xs]: xsImage,
-      [BackgroundImageSrc.xs2x]: xs2xImage,
-      [BackgroundImageSrc.sm]: smImage,
-      [BackgroundImageSrc.sm2x]: sm2xImage,
-      [BackgroundImageSrc.lg]: lgImage,
-      [BackgroundImageSrc.filter]: `${filter}#image_overlay`
-    };
-
     const Header = (
       <React.Fragment>
         <PageHeader
+          className="streams-header"
           logo={<Brand src={brandImg} alt="AMQ Streams logo" />}
           toolbar={PageToolbar}
           avatar={
-            <span className="avatar-dot">
-              <UserSecIcon color="#BBB" size="lg" />
-            </span>
+            <Avatar src={avatarImg} alt="avatar" />
           }
         />
       </React.Fragment>
     );
-    /*
-        avatar={
-          <Avatar src={avatarImg} alt="avatar" />
-        }
-    */
 
     return (
       <React.Fragment>
         <nav className="navbar navbar-pf-vertical">
-          <BackgroundImage src={bgImages} />
           <Page header={Header}>
             <PageSection variant={PageSectionVariants.light}>
               <NotificationList ref={this.toastRef} />

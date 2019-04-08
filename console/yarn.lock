@@ -4198,7 +4198,7 @@ eslint-plugin-node@^6.0.1:
     resolve "^1.3.3"
     semver "^5.4.1"
 
-eslint-plugin-patternfly-react@^0.2.0:
+eslint-plugin-patternfly-react@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/eslint-plugin-patternfly-react/-/eslint-plugin-patternfly-react-0.2.2.tgz#4546707af30caa106898f811a55fce0b6323e10c"
   integrity sha512-rejQRlApuI+xAcuCHnzeMkkwHaCD2L0B6kf+lGZ7LXDlPOAXchLYqXS4MTECDDdBVHiS2GmPUINu6mlCQK0A0w==
@@ -7717,7 +7717,7 @@ patternfly-react@^2.29.15:
     sortabular "^1.5.1"
     table-resolver "^3.2.0"
 
-patternfly@^3.58.0, patternfly@^3.59.1:
+patternfly@^3.58.0, patternfly@^3.x:
   version "3.59.1"
   resolved "https://registry.yarnpkg.com/patternfly/-/patternfly-3.59.1.tgz#4adea89223e7386551bc9560ad5bed99e37df904"
   integrity sha512-0Q/P58yaxcQXwnXo/OssiXaZmuX0g9QvWdpsYHyml4ihqnN2lL/yGdadFarA6UAQb//15XtNjKHZocoJXCkWYg==

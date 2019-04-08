@@ -1,4 +1,9 @@
-2019/03/22 veriosn 0.0.10
+2019/04/08 version 0.0.11
+ - new favicon.ico
+ - new product logo
+ - removed banner background image
+
+2019/03/22 version 0.0.10
  - don't show 'invalid' exclamation point on topic name entry field
    until the field looses focus and is still invalid
 

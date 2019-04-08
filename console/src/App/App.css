@@ -473,3 +473,7 @@ form.add-topic-form .topics-policy-title {
   color: #007BBA;
   font-size: 10px;
 }
+
+.streams-header {
+  background-color: #151515;
+}
