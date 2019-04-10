@@ -477,3 +477,7 @@ form.add-topic-form .topics-policy-title {
 .streams-header {
   background-color: #151515;
 }
+
+.delete-list {
+  font-weight: bold;
+}

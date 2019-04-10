@@ -38,10 +38,11 @@ import { css } from '@patternfly/react-styles';
 import { CogIcon } from '@patternfly/react-icons';
 import NotificationDrawer from './notificationDrawer';
 import NotificationList from './notificationList';
+import TopicsTable from '../table/topicTable';
+import StreamsAboutModal from './about';
 
 let avatarImg = require('../../../../node_modules/@patternfly/patternfly/assets/images/img_avatar.svg');
 let brandImg = require('../../assets/images/AMQStreams-Stacked.svg');
-import TopicsTable from '../table/topicTable';
 
 class PageLayoutManualNav extends React.Component {
   constructor(props) {
@@ -87,9 +88,7 @@ class PageLayoutManualNav extends React.Component {
             <NotificationDrawer ref={this.drawerRef} />
           </ToolbarItem>
           <ToolbarItem>
-            <Button id="default-example-uid-02" aria-label="Settings actions" variant={ButtonVariant.plain}>
-              <CogIcon />
-            </Button>
+            <StreamsAboutModal />
           </ToolbarItem>
         </ToolbarGroup>
         <ToolbarGroup>
@@ -113,9 +112,7 @@ class PageLayoutManualNav extends React.Component {
           className="streams-header"
           logo={<Brand src={brandImg} alt="AMQ Streams logo" />}
           toolbar={PageToolbar}
-          avatar={
-            <Avatar src={avatarImg} alt="avatar" />
-          }
+          avatar={<Avatar src={avatarImg} alt="avatar" />}
         />
       </React.Fragment>
     );

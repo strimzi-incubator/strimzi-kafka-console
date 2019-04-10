@@ -1,3 +1,8 @@
+2019/04/10 version 0.0.12
+ - added delete confirm dialog
+ - added about box
+ - fixed server error after delete all topics
+
 2019/04/08 version 0.0.11
  - new favicon.ico
  - new product logo
