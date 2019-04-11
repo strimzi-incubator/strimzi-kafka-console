@@ -39,8 +39,7 @@ class DeleteConfirm extends React.Component {
         ]}
       >
         <ul className="delete-list">{this.deleteList()}</ul>
-        Once you delete the topic, all the related configurations will be deleted. Do you still want to delete
-        the topic?
+        Once you delete the topic, all the related stored data will be lost. Do you still want to delete the topic?
       </Modal>
     );
   }

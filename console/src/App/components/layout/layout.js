@@ -17,8 +17,6 @@ import React from 'react';
 import {
   Avatar,
   Brand,
-  Button,
-  ButtonVariant,
   Dropdown,
   DropdownToggle,
   DropdownItem,
@@ -35,7 +33,6 @@ import {
 } from '@patternfly/react-core';
 import accessibleStyles from '@patternfly/patternfly/utilities/Accessibility/accessibility.css';
 import { css } from '@patternfly/react-styles';
-import { CogIcon } from '@patternfly/react-icons';
 import NotificationDrawer from './notificationDrawer';
 import NotificationList from './notificationList';
 import TopicsTable from '../table/topicTable';
