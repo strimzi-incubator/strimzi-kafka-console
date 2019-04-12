@@ -129,7 +129,8 @@ public class ConsoleServer extends AbstractVerticle {
 
                                 if (res2.succeeded()) {
                                     JsonArray jsonTopics = TopicUtils.to(res.result(), res2.result());
-                                    log.info("Topics list {}", jsonTopics);
+                                    log.info("There are {} topics", jsonTopics.size());
+                                    log.debug("Topics list {}", jsonTopics);
                                     routingContext.response().setStatusCode(200).end(jsonTopics.encode());
                                 } else {
                                     routingContext.response().setStatusCode(500).end();
