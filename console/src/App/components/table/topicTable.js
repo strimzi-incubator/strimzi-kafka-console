@@ -25,6 +25,7 @@ import TopicsEmpty from './topicsEmpty';
 import TopicsTableEmpty from './topicsTableEmpty';
 import TopicsLoading from './topicsLoading';
 import ServerError from './serverError';
+import DeleteConfirm from './deleteConfirm';
 
 // refresh rate for getting consumer count
 const REFRESH = 5000;
@@ -63,7 +64,9 @@ class TopicsTable extends React.Component {
       sortBy: {},
       serverError: false,
       firstLoad: true,
-      disableDeleteAll: true
+      disableDeleteAll: true,
+      deleteOpen: false,
+      deleteList: []
     };
     this.refreshTopicList();
     this.polling = false;
@@ -129,8 +132,14 @@ class TopicsTable extends React.Component {
   handleDeleteRow = (event, rowIndex) => {
     const { rows } = this.state;
     const name = rows[rowIndex].cells[0];
-    this.topics_service.deleteTopic(name).then(() => {
-      this.props.handleNewNotification('warning', `Deleted topic '${name}'`);
+    this.setState({ deleteOpen: true, deleteList: [name] });
+  };
+
+  doDeleteList = () => {
+    const { deleteList } = this.state;
+    this.topics_service.deleteTopicList(deleteList).then(() => {
+      const message = `Deleted topic${deleteList.length > 1 ? 's' : ''} [${deleteList.join(', ')}]`;
+      this.props.handleNewNotification('warning', message);
       this.refreshTopicList();
     });
   };
@@ -282,6 +291,15 @@ class TopicsTable extends React.Component {
     this.setState({ rows, pageNumber, totalRows, disableDeleteAll });
   };
 
+  handleDeleteConfirm = () => {
+    this.doDeleteList();
+    this.handleDeleteClose();
+  };
+
+  handleDeleteClose = () => {
+    this.setState({ deleteOpen: false });
+  };
+
   fixParents = rows => {
     const newRows = [];
     rows.forEach((row, i) => {
@@ -340,11 +358,7 @@ class TopicsTable extends React.Component {
     const { rows } = this.state;
     if (action === 'Delete selected topics') {
       const deleteList = rows.filter(row => row.cells.length > 1 && row.selected).map(row => row.cells[0]);
-      this.topics_service.deleteTopicList(deleteList).then(() => {
-        const message = `Deleted topic${deleteList.length > 1 ? 's' : ''} [${deleteList.join(', ')}]`;
-        this.props.handleNewNotification('warning', message);
-        this.refreshTopicList();
-      });
+      this.setState({ deleteOpen: true, deleteList });
     } else if (action === 'topic created') {
       this.refreshTopicList(data);
     } else if (action === 'switch sort') {
@@ -367,9 +381,6 @@ class TopicsTable extends React.Component {
 
   render() {
     const { columns, rows, actions, sortBy, serverError, firstLoad } = this.state;
-    if (serverError) {
-      return <ServerError />;
-    }
     if (firstLoad) {
       return <TopicsLoading />;
     }
@@ -381,6 +392,9 @@ class TopicsTable extends React.Component {
           service={this.topics_service}
         />
       );
+    }
+    if (serverError) {
+      return <ServerError />;
     }
 
     return (
@@ -412,6 +426,12 @@ class TopicsTable extends React.Component {
         >
           {this.renderTableBody()}
         </Table>
+        <DeleteConfirm
+          onDeleteConfirm={this.handleDeleteConfirm}
+          onDeleteClose={this.handleDeleteClose}
+          deleteList={this.state.deleteList}
+          isOpen={this.state.deleteOpen}
+        />
       </div>
     );
   }

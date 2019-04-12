@@ -22,7 +22,7 @@ class TopicsService {
   getTopicList = () =>
     new Promise((resolve, reject) => {
       this.latest = [];
-      const strategy = { '200': 'resolve', '404': 'reject', '500': 'reject' };
+      const strategy = { '200': 'resolve', '404': 'resolve', '500': 'reject' };
       poll(`${this.url}/topics`, strategy).then(
         res => {
           this.latest = res;
