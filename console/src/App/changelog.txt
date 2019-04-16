@@ -1,3 +1,6 @@
+2019/14/15 version 0.0.13
+ - continue polling after server error
+
 2019/04/10 version 0.0.12
  - added delete confirm dialog
  - added about box

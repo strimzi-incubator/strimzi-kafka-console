@@ -76,12 +76,9 @@ class TopicsTable extends React.Component {
   getColumn = col => this.state.columns.findIndex(c => c.title === col);
 
   refreshTopicList = justCreated => {
-    let { serverError } = this.state;
-    const firstLoad = false;
     this.topics_service.getTopicList().then(
       topics => {
-        serverError = false;
-        this.setState({ serverError, firstLoad });
+        this.setState({ serverError: false, firstLoad: false });
         this.onTopicList(topics, justCreated);
         if (!this.polling) {
           this.polling = true;
@@ -89,8 +86,7 @@ class TopicsTable extends React.Component {
         }
       },
       e => {
-        serverError = true;
-        this.setState({ serverError, firstLoad });
+        this.setState({ serverError: true, firstLoad: false });
         console.log(`topics error is ${e}`);
         setTimeout(this.refreshTopicList, REFRESH);
       }
@@ -123,8 +119,8 @@ class TopicsTable extends React.Component {
         // display the server error screen
         const serverError = true;
         // once topics return, start polling again
-        const firstLoad = true;
-        this.setState({ serverError, firstLoad });
+        setTimeout(this.updateConsumers, REFRESH);
+        this.setState({ serverError });
       }
     );
   };
