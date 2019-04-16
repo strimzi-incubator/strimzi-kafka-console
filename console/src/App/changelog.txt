@@ -1,4 +1,7 @@
-2019/14/15 version 0.0.13
+2019/04/16 version 0.0.14
+ - refresh entire topic list (not just consumers count)
+
+2019/04/15 version 0.0.13
  - continue polling after server error
 
 2019/04/10 version 0.0.12
