@@ -105,10 +105,12 @@ class TopicsTable extends React.Component {
     this.topics_service.getTopicList().then(
       topics => {
         this.allRows = this.mapTopicsToRows(topics);
-        this.handleSetPage(this.state.pageNumber);
+        this.setState({ serverError: false }, () => this.handleSetPage(this.state.pageNumber));
         setTimeout(this.pollForTopics, REFRESH);
       },
       e => {
+        console.log('error during polling');
+        console.log(e);
         // display the server error screen
         const serverError = true;
         // once topics return, start polling again
