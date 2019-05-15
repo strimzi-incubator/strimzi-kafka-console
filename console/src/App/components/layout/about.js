@@ -2,7 +2,7 @@ import React from 'react';
 import { AboutModal, Button, ButtonVariant, TextContent, TextList, TextListItem } from '@patternfly/react-core';
 import { CogIcon } from '@patternfly/react-icons';
 
-let brandImg = require('../../assets/images/AMQStreams-Stacked.svg');
+let brandImg = require('../../assets/images/strimzi_logo_reverse.svg');
 
 class StreamsAboutModal extends React.Component {
   constructor(props) {
@@ -37,9 +37,9 @@ class StreamsAboutModal extends React.Component {
           isOpen={isModalOpen}
           onClose={this.handleModalToggle}
           productName=""
-          trademark="Copyright 2019 Red Hat"
+          trademark=""
           brandImageSrc={brandImg}
-          brandImageAlt="AMQ Streams Logo"
+          brandImageAlt="Strimzi Logo"
         >
           <TextContent>
             <TextList component="dl">

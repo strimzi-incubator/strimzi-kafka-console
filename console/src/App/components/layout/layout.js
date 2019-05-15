@@ -39,7 +39,7 @@ import TopicsTable from '../table/topicTable';
 import StreamsAboutModal from './about';
 
 let avatarImg = require('../../../../node_modules/@patternfly/patternfly/assets/images/img_avatar.svg');
-let brandImg = require('../../assets/images/AMQStreams-Stacked.svg');
+let brandImg = require('../../assets/images/strimzi_logo_reverse.svg');
 
 class PageLayoutManualNav extends React.Component {
   constructor(props) {
@@ -107,7 +107,7 @@ class PageLayoutManualNav extends React.Component {
       <React.Fragment>
         <PageHeader
           className="streams-header"
-          logo={<Brand src={brandImg} alt="AMQ Streams logo" />}
+          logo={<Brand src={brandImg} alt="Strimzi logo" />}
           toolbar={PageToolbar}
           avatar={<Avatar src={avatarImg} alt="avatar" />}
         />
