@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: strimzi-console
+  labels:
+    app: strimzi
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: strimzi-console
+    spec:
+      containers:
+      - name: strimzi-console
+        image: quay.io/redhatdemo/console-pages:latest
+        ports:
+          - name: http
+            containerPort: 8888
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: "0.1"
+          limits:
+            memory: 256Mi
+            cpu: "0.5"
